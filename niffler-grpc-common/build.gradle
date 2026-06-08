@@ -23,14 +23,14 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:${project.ext.protobufVersion}"
+        path = 'C:/tools/protobuf/bin/protoc.exe'
     }
     clean {
         delete generatedFilesBaseDir
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${project.ext.grpcVersion}"
+            path = 'C:/tools/protobuf/bin/protoc-gen-grpc-java.exe'
         }
     }
     generateProtoTasks {
