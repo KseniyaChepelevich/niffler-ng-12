@@ -41,7 +41,7 @@ public class FriendsWebTest {
                 .login(user.username(), user.password())
                 .openMenu()
                 .openFriendsPage()
-                .checkIncomeRequestBeVisible(user.friend());
+                .checkIncomeRequestBeVisible(user.income());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class FriendsWebTest {
                 .openMenu()
                 .openFriendsPage()
                 .openAllPeopleTable()
-                .checkOutcomeRequestBeVisible(user.friend());
+                .checkOutcomeRequestBeVisible(user.outcome());
     }
 
 
