@@ -2,7 +2,10 @@ package guru.qa.niffler.test.web;
 
 import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
-import guru.qa.niffler.model.*;
+import guru.qa.niffler.model.SpendJson;
+import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.model.AuthAuthorityJson;
 import guru.qa.niffler.service.AuthAuthorityDbClient;
 import guru.qa.niffler.service.AuthUserDbClient;
 import guru.qa.niffler.service.SpendDbClient;
@@ -16,7 +19,7 @@ public class JdbcTest {
     void daoTest() {
         SpendDbClient spendDbClient = new SpendDbClient();
 
-        SpendJson spend = spendDbClient.createSpend(
+        SpendJson spend = spendDbClient.createSpending(
                 new SpendJson(
                         null,
                         new Date(),

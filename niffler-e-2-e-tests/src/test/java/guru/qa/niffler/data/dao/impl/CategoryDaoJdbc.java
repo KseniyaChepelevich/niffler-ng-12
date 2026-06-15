@@ -76,11 +76,11 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(CategoryEntity category) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "DELETE FROM category WHERE id = ?"
         )) {
-            ps.setObject(1, id);
+            ps.setObject(1, category.getId());
             ps.execute();
 
         } catch (SQLException e) {

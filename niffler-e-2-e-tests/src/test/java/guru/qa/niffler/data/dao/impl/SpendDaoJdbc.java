@@ -55,10 +55,10 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(SpendEntity spend) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "DELETE FROM spend WHERE id = ?")) {
-            ps.setObject(1, id);
+            ps.setObject(1, spend.getId());
             ps.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);

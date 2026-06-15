@@ -11,7 +11,7 @@ public interface CategoryDao {
 
     Optional<CategoryEntity> findCategoryById(UUID id);
 
-    void delete(UUID id);
+    void delete(CategoryEntity category);
 
     CategoryEntity update(CategoryEntity category);
 

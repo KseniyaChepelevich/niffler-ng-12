@@ -3,7 +3,7 @@ buildscript {
         junitVersion = '5.14.1'
         allureVersion = '2.32.0'
         aspectJVersion = '1.9.22'
-        selenideVersion = '7.13.0'
+        selenideVersion = '7.16.2'
         okhttp3Version = '5.3.2'
         retrofitVersion = '3.0.0'
         apollographqlVersion = '0.0.2'
@@ -132,6 +132,8 @@ dependencies {
     // Lombok
     testAnnotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${project.ext.lombokVersion}"
+
+
 
 }
 

@@ -10,7 +10,7 @@ package guru.qa.niffler.config;
 
   @Override
   public String authUrl() {
-   return "";
+   return "http://localhost:9000";
   }
 
   @Override
@@ -20,12 +20,12 @@ package guru.qa.niffler.config;
 
   @Override
   public String gatewayUrl() {
-   return "";
+   return "http://localhost:8090";
   }
 
   @Override
   public String userdataUrl() {
-   return "";
+   return "http://localhost:8089";
   }
 
   @Override
@@ -46,11 +46,6 @@ package guru.qa.niffler.config;
   @Override
   public String currencyJdbcUrl() {
    return "jdbc:postgresql://localhost:5432/niffler-currency";
-  }
-
-  @Override
-  public String ghUrl() {
-   return "";
   }
 
   @Override

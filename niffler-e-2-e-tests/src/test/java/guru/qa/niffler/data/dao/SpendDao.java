@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface SpendDao {
     SpendEntity create(SpendEntity spend);
 
-    void delete(UUID id);
+    void delete(SpendEntity spend);
 
     SpendEntity update(SpendEntity spend);
 
