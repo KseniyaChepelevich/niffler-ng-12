@@ -133,7 +133,7 @@ public class SpendDaoJdbc implements SpendDao {
             ps.setObject(1, username);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     SpendEntity spend = new SpendEntity();
                     spend.setId(rs.getObject("id", UUID.class));
                     spend.setUsername(username);
@@ -155,5 +155,31 @@ public class SpendDaoJdbc implements SpendDao {
             throw new RuntimeException(e);
         }
         return listSpends;
+    }
+
+    @Override
+    public List<SpendEntity> findAll() {
+        List<SpendEntity> listSpends = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM \"spend\""
+        )) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SpendEntity spend = new SpendEntity();
+                    spend.setId(rs.getObject("id", UUID.class));
+                    spend.setUsername(rs.getString("username"));
+                    spend.setSpendDate(rs.getDate("spend_date"));
+                    spend.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                    spend.setAmount(rs.getDouble("amount"));
+                    spend.setDescription(rs.getString("description"));
+                    listSpends.add(spend);
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return listSpends;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

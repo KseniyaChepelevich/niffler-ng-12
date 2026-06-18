@@ -1,15 +1,15 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthUserDao;
+import guru.qa.niffler.data.entity.AuthAuthorityEntity;
 import guru.qa.niffler.data.entity.AuthUserEntity;
+import guru.qa.niffler.data.entity.Authority;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +22,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     public AuthUserDaoJdbc(Connection connection) {
         this.connection = connection;
     }
+
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
         try (PreparedStatement ps = connection.prepareStatement(
@@ -109,6 +110,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
             ps.setBoolean(4, user.getCredentialsNonExpired());
             ps.setBoolean(5, user.getEnabled());
             ps.setString(6, user.getPassword());
+            ps.setObject(7,user.getId());
 
             int updatedRows = ps.executeUpdate();
             if (updatedRows == 0) {
@@ -121,15 +123,14 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public Optional<AuthUserEntity> findByUsername(String username) {
+    public List<AuthUserEntity> findAllByUsername(String username) {
+        List<AuthUserEntity> listUsers = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\" WHERE username = ?"
         )) {
             ps.setObject(1, username);
-            ps.execute();
-            try (ResultSet rs = ps.getResultSet()) {
-                if (rs.next()) {
-
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     AuthUserEntity user = new AuthUserEntity();
                     user.setId(rs.getObject("id", UUID.class));
                     user.setUsername(rs.getString("username"));
@@ -139,13 +140,44 @@ public class AuthUserDaoJdbc implements AuthUserDao {
                     user.setEnabled(rs.getBoolean("enabled"));
                     user.setPassword(rs.getString("password"));
 
-                    return Optional.of(user);
-                } else {
-                    return Optional.empty();
+                    listUsers.add(user);
                 }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
+            return listUsers;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    @Override
+    public List<AuthUserEntity> findAll() {
+        List<AuthUserEntity> listUsers = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM \"user\""
+        )) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(rs.getObject("id", UUID.class));
+                    user.setUsername(rs.getString("username"));
+                    user.setAccountNonExpired(rs.getBoolean("account_non_expired"));
+                    user.setAccountNonLocked(rs.getBoolean("account_non_locked"));
+                    user.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
+                    user.setEnabled(rs.getBoolean("enabled"));
+                    user.setPassword(rs.getString("password"));
+
+                    listUsers.add(user);
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return listUsers;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

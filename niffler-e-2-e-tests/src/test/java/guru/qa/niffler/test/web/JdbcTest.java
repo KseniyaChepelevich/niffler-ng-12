@@ -2,13 +2,11 @@ package guru.qa.niffler.test.web;
 
 import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
-import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.model.CategoryJson;
-import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.AuthAuthorityJson;
+import guru.qa.niffler.model.*;
 import guru.qa.niffler.service.AuthAuthorityDbClient;
 import guru.qa.niffler.service.AuthUserDbClient;
 import guru.qa.niffler.service.SpendDbClient;
+import guru.qa.niffler.service.UsersDbClient;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -25,7 +23,7 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "test-cat-name-3",
+                                "test-cat-name-5",
                                 "Toto",
                                 false
                         ),
@@ -64,5 +62,44 @@ public class JdbcTest {
         System.out.println(authorityJson);
 
 
+    }
+
+    @Test
+    void xaTxTest() {
+        UsersDbClient usersDbClient = new UsersDbClient();
+        UserdataUserJson user = usersDbClient.createUser(
+                new UserdataUserJson(
+                        null,
+                        "valentin-8",
+                                null,
+                        null,
+                        null,
+                        CurrencyValues.RUB,
+                        null,
+                        null,
+                        null
+                )
+        );
+        System.out.println(user);
+    }
+
+
+    @Test
+    void springJdbcTest() {
+        UsersDbClient usersDbClient = new UsersDbClient();
+        UserdataUserJson user = usersDbClient.createUserSpringJdbc(
+                new UserdataUserJson(
+                        null,
+                        "valentin-9",
+                        null,
+                        null,
+                        null,
+                        CurrencyValues.RUB,
+                        null,
+                        null,
+                        null
+                )
+        );
+        System.out.println(user);
     }
 }

@@ -16,7 +16,7 @@ public class AuthAuthorityDbClient {
                     AuthAuthorityEntity authorityEntity = AuthAuthorityEntity.fromJson(authority);
                     AuthUserEntity authUserEntity = new AuthUserEntity();
                     authUserEntity.setId(authority.user());
-                    authorityEntity.setUser(authUserEntity);
+                    authorityEntity.setUserId(authUserEntity.getId());
 
                     new AuthAuthorityDaoJdbc(connection).create(authorityEntity);
                     return AuthAuthorityJson.fromEntity(authorityEntity);

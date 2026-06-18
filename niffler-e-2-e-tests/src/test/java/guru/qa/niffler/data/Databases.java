@@ -24,17 +24,12 @@ public class Databases {
     private static final Map<String, DataSource> datasources = new ConcurrentHashMap<>();
     private static final Map<Long, Map<String, Connection>> threadConnections = new ConcurrentHashMap<>();
 
-    public record XaFunction<T>(Function<Connection, T> function, String jdbcUrl, int isolationLevel) {
-        public XaFunction(Function<Connection, T> function, String jdbcUrl) {
-            this(function, jdbcUrl, Connection.TRANSACTION_READ_COMMITTED);
-        }
-    };
+    public record XaFunction<T>(Function<Connection, T> function, String jdbcUrl) {
+    }
 
-    public record XaConsumer(Consumer<Connection> function, String jdbcUrl, int isolationLevel) {
-        public XaConsumer(Consumer<Connection> function, String jdbcUrl) {
-            this(function, jdbcUrl, Connection.TRANSACTION_READ_COMMITTED);
-        }
-    };
+    public record XaConsumer(Consumer<Connection> function, String jdbcUrl) {
+    }
+
     public static <T> T transaction(Function<Connection, T> function, String jdbcUrl) {
         return transaction(function, jdbcUrl, Connection.TRANSACTION_READ_COMMITTED);
     }
@@ -103,32 +98,19 @@ public class Databases {
 
     public static <T> T xaTransaction(XaFunction<T>... actions) {
         UserTransaction ut = new UserTransactionImp();
-        Map<Connection, Integer> originalIsolations = new HashMap<>();
         try {
             ut.begin();
             T result = null;
             for (XaFunction<T> action : actions) {
-                Connection connection = connection(action.jdbcUrl);
-                originalIsolations.put(connection, connection.getTransactionIsolation());
-                connection.setTransactionIsolation(action.isolationLevel);
-
-                result = action.function.apply(connection);
+                  result = action.function.apply(connection(action.jdbcUrl));
             }
             ut.commit();
-            for (Map.Entry<Connection, Integer> entry : originalIsolations.entrySet()) {
-                entry.getKey().setTransactionIsolation(entry.getValue());
-            }
             return result;
         } catch (Exception e) {
 
             try {
                 ut.rollback();
-                for (Map.Entry<Connection, Integer> entry : originalIsolations.entrySet()) {
-                    entry.getKey().setTransactionIsolation(entry.getValue());
-                }
             } catch (SystemException ex) {
-                throw new RuntimeException(ex);
-            } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
             throw new RuntimeException(e);
@@ -141,10 +123,8 @@ public class Databases {
         try {
             ut.begin();
             for (XaConsumer action : actions) {
-                Connection connection = connection(action.jdbcUrl);
-                originalIsolations.put(connection, connection.getTransactionIsolation());
-                connection.setTransactionIsolation(action.isolationLevel);
-                action.function.accept(connection);
+
+                action.function.accept(connection(action.jdbcUrl));
             }
             ut.commit();
             for (Map.Entry<Connection, Integer> entry : originalIsolations.entrySet()) {
@@ -166,7 +146,7 @@ public class Databases {
     }
 
 
-    private static DataSource dataSource(String jdbcUrl) {
+    public static DataSource dataSource(String jdbcUrl) {
         return datasources.computeIfAbsent(
                 jdbcUrl,
                 key -> {

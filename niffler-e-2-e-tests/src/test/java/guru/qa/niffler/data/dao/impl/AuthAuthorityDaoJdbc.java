@@ -2,12 +2,16 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.AuthAuthorityEntity;
+import guru.qa.niffler.data.entity.AuthUserEntity;
+import guru.qa.niffler.data.entity.Authority;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
@@ -31,7 +35,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         )) {
             for (AuthAuthorityEntity authority : authorities) {
                 ps.setString(1, authority.getAuthority().name());
-                ps.setObject(2, authority.getUser().getId());
+                ps.setObject(2, authority.getUserId());
 
                 ps.executeUpdate();
 
@@ -49,5 +53,30 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<AuthAuthorityEntity> findAll() {
+        List<AuthAuthorityEntity> listAuthorities = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM \"authority\""
+        )) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AuthAuthorityEntity authority = new AuthAuthorityEntity();
+                    authority.setId(rs.getObject("id", UUID.class));
+                    authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+                    authority.setUserId(rs.getObject("user_id", UUID.class));
+
+                    listAuthorities.add(authority);
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return listAuthorities;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

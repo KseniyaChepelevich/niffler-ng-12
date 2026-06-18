@@ -14,13 +14,12 @@ public record AuthAuthorityJson(
         UUID user
 ) {
     public static AuthAuthorityJson fromEntity(AuthAuthorityEntity entity) {
-        final AuthUserEntity user = entity.getUser();
-        final UUID userId = entity.getUser().getId();
+        final UUID userId = entity.getUserId();
 
         return new AuthAuthorityJson(
                 entity.getId(),
                 entity.getAuthority(),
-                entity.getUser().getId()
+                entity.getUserId()
         );
     }
 }
