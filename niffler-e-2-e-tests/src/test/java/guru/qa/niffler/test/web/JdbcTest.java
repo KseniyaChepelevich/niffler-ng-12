@@ -1,7 +1,7 @@
 package guru.qa.niffler.test.web;
 
-import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.entity.Authority;
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
+import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.model.*;
 import guru.qa.niffler.service.AuthAuthorityDbClient;
 import guru.qa.niffler.service.AuthUserDbClient;
@@ -23,7 +23,7 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "test-cat-name-5",
+                                "test-cat-name-6",
                                 "Toto",
                                 false
                         ),
@@ -70,7 +70,7 @@ public class JdbcTest {
         UserdataUserJson user = usersDbClient.createUser(
                 new UserdataUserJson(
                         null,
-                        "valentin-8",
+                        "valentin-10",
                                 null,
                         null,
                         null,
@@ -90,7 +90,7 @@ public class JdbcTest {
         UserdataUserJson user = usersDbClient.createUserSpringJdbc(
                 new UserdataUserJson(
                         null,
-                        "valentin-9",
+                        "valentin-15",
                         null,
                         null,
                         null,

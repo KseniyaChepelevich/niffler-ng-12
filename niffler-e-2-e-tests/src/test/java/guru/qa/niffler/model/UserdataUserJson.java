@@ -1,7 +1,7 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
+import guru.qa.niffler.data.entity.userdata.UserEntity;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -27,7 +27,7 @@ public record UserdataUserJson(
         @JsonProperty("frendshipStatus")
         FriendshipStatus friendshipStaus) {
 
-    public static UserdataUserJson fromEntity(UserdataUserEntity entity, FriendshipStatus friendshipStatus) {
+    public static UserdataUserJson fromEntity(UserEntity entity, FriendshipStatus friendshipStatus) {
         return new UserdataUserJson(
                 entity.getId(),
                 entity.getUsername(),

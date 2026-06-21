@@ -1,9 +1,9 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
-import guru.qa.niffler.data.entity.AuthAuthorityEntity;
-import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.entity.Authority;
+import guru.qa.niffler.data.entity.auth.AuthUserEntity;
+import guru.qa.niffler.data.entity.auth.Authority;
+import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -23,7 +23,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public void create(AuthAuthorityEntity... authorities) {
+    public void create(AuthorityEntity... authorities) {
         if (authorities == null || authorities.length == 0) {
             return;
         }
@@ -33,9 +33,9 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                         "VALUES (?, ?)",
                 Statement.RETURN_GENERATED_KEYS
         )) {
-            for (AuthAuthorityEntity authority : authorities) {
+            for (AuthorityEntity authority : authorities) {
                 ps.setString(1, authority.getAuthority().name());
-                ps.setObject(2, authority.getUserId());
+                ps.setObject(2, authority.getUser().getId());
 
                 ps.executeUpdate();
 
@@ -56,17 +56,20 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     }
 
     @Override
-    public List<AuthAuthorityEntity> findAll() {
-        List<AuthAuthorityEntity> listAuthorities = new ArrayList<>();
+    public List<AuthorityEntity> findAll() {
+        List<AuthorityEntity> listAuthorities = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"authority\""
         )) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    AuthAuthorityEntity authority = new AuthAuthorityEntity();
+                    AuthorityEntity authority = new AuthorityEntity();
                     authority.setId(rs.getObject("id", UUID.class));
                     authority.setAuthority(Authority.valueOf(rs.getString("authority")));
-                    authority.setUserId(rs.getObject("user_id", UUID.class));
+                    UUID userId = rs.getObject("user_id", UUID.class);
+                    AuthUserEntity userStub = new AuthUserEntity();
+                    userStub.setId(userId);
+                    authority.setUser(userStub);
 
                     listAuthorities.add(authority);
                 }

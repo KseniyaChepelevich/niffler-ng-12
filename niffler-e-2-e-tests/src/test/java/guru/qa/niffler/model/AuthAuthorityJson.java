@@ -1,7 +1,8 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import guru.qa.niffler.data.entity.*;
+import guru.qa.niffler.data.entity.auth.Authority;
+import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 
 import java.util.UUID;
 
@@ -13,13 +14,13 @@ public record AuthAuthorityJson(
         @JsonProperty("user_id")
         UUID user
 ) {
-    public static AuthAuthorityJson fromEntity(AuthAuthorityEntity entity) {
-        final UUID userId = entity.getUserId();
+    public static AuthAuthorityJson fromEntity(AuthorityEntity entity) {
+        final UUID userId = entity.getUser().getId();
 
         return new AuthAuthorityJson(
                 entity.getId(),
                 entity.getAuthority(),
-                entity.getUserId()
+                entity.getUser().getId()
         );
     }
 }
