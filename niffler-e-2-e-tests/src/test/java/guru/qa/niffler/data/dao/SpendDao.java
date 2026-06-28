@@ -14,6 +14,7 @@ public interface SpendDao {
     SpendEntity update(SpendEntity spend);
 
     Optional<SpendEntity> findSpendById(UUID id);
+    Optional<SpendEntity> findSpendByUsernameAndDescription(String username, String description);
 
     List<SpendEntity> findAllByUsername(String username);
 

@@ -1,26 +1,24 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static guru.qa.niffler.data.tpl.Connections.holder;
+
 public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
-    private final Connection connection;
-
-    public AuthAuthorityDaoJdbc(Connection connection) {
-        this.connection = connection;
-    }
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public void create(AuthorityEntity... authorities) {
@@ -28,7 +26,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
             return;
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO \"authority\" (\"authority\", user_id)" +
                         "VALUES (?, ?)",
                 Statement.RETURN_GENERATED_KEYS
@@ -37,18 +35,16 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                 ps.setString(1, authority.getAuthority().name());
                 ps.setObject(2, authority.getUser().getId());
 
-                ps.executeUpdate();
-
-                final UUID generatedKey;
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        generatedKey = rs.getObject("id", UUID.class);
-                    } else {
-                        throw new SQLException("Can't find id in ResultSet");
-                    }
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                int i = 0;
+                while (rs.next() && i < authorities.length) {
+                    UUID generatedKey = rs.getObject(1, UUID.class);
+                    authorities[i].setId(generatedKey);
+                    i++;
                 }
-                authority.setId(generatedKey);
-
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -58,7 +54,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     @Override
     public List<AuthorityEntity> findAll() {
         List<AuthorityEntity> listAuthorities = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM \"authority\""
         )) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -80,6 +76,30 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public List<AuthorityEntity> findAuthorityByUserId(UUID userId) {
+        List<AuthorityEntity> userAuthorities = new ArrayList<>();
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "SELECT * FROM \"authority\" WHERE user_id = ?"
+        )) {
+            ps.setObject(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AuthorityEntity authority = new AuthorityEntity();
+                    authority.setId(rs.getObject("id", UUID.class));
+                    authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(userId);
+                    authority.setUser(user);
+
+                    userAuthorities.add(authority);
+                }
+            }
+            return userAuthorities;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package guru.qa.niffler.data.entity.auth;
 
+import guru.qa.niffler.model.AuthUserJson;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,5 +71,17 @@ public class AuthUserEntity implements Serializable {
   @Override
   public final int hashCode() {
     return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+  }
+
+  public static AuthUserEntity fromJson(AuthUserJson json) {
+    AuthUserEntity aue = new AuthUserEntity();
+    aue.setId(json.id());
+    aue.setUsername(json.username());
+    aue.setPassword(json.password());
+    aue.setEnabled(true);
+    aue.setAccountNonExpired(true);
+    aue.setAccountNonLocked(true);
+    aue.setCredentialsNonExpired(true);
+    return aue;
   }
 }

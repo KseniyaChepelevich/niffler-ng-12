@@ -9,17 +9,14 @@ import java.util.UUID;
 
 public interface UserdataUserRepository {
     UserEntity create(UserEntity user);
-
-    void delete(UUID id);
-
-
     Optional<UserEntity> findById(UUID id);
-
+    Optional<UserEntity> findByUsername(String username);
+    UserEntity update(UserEntity user);
     void addIncomeInvitation(UserEntity requester, UserEntity addressee);
     void addOutcomeInvitation(UserEntity requester, UserEntity addressee);
     void addFriend(UserEntity requester, UserEntity addressee);
 
-    List<UserEntity> findAllByUsername(String username);
+    void remove(UserEntity user);
 
     List<UserEntity> findAll();
 }

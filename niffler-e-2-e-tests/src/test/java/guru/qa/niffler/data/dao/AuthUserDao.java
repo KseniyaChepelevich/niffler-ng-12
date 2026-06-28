@@ -11,11 +11,11 @@ public interface AuthUserDao {
 
     Optional<AuthUserEntity> findUserById(UUID id);
 
-    void delete(UUID id);
+    void delete(AuthUserEntity user);
 
     AuthUserEntity update(AuthUserEntity user);
 
-    List<AuthUserEntity> findAllByUsername(String username);
+    Optional<AuthUserEntity> findAllByUsername(String username);
 
     List<AuthUserEntity> findAll();
 }

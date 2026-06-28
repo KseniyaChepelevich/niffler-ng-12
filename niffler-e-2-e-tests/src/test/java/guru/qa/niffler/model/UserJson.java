@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 
-public record UserdataUserJson(
+public record UserJson(
         @JsonProperty("id")
         UUID id,
         @JsonProperty("username")
@@ -24,11 +24,11 @@ public record UserdataUserJson(
         String photo,
         @JsonProperty("photoSmall")
         String photoSmall,
-        @JsonProperty("frendshipStatus")
-        FriendshipStatus friendshipStaus) {
+        @JsonProperty("friendshipStatus")
+        FriendshipStatus friendshipStatus) {
 
-    public static UserdataUserJson fromEntity(UserEntity entity, FriendshipStatus friendshipStatus) {
-        return new UserdataUserJson(
+    public static UserJson fromEntity(UserEntity entity, FriendshipStatus friendshipStatus) {
+        return new UserJson(
                 entity.getId(),
                 entity.getUsername(),
                 entity.getFirstname(),
@@ -39,5 +39,8 @@ public record UserdataUserJson(
                 entity.getPhotoSmall() != null && entity.getPhotoSmall().length > 0 ? new String(entity.getPhotoSmall(), StandardCharsets.UTF_8) : null,
                 friendshipStatus
         );
+    }
+    public static UserJson fromEntity(UserEntity entity) {
+        return fromEntity(entity, null);
     }
 }

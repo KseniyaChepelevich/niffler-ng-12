@@ -2,9 +2,18 @@ package guru.qa.niffler.data.entity.userdata;
 
 
 import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
-import guru.qa.niffler.model.UserdataUserJson;
-import jakarta.persistence.*;
+import guru.qa.niffler.model.UserJson;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -58,7 +67,7 @@ public class UserEntity implements Serializable {
   private List<PushTokenEntity> pushTokens = new ArrayList<>();
 
 
-  public static UserEntity fromJson(UserdataUserJson json) {
+  public static UserEntity fromJson(UserJson json) {
     UserEntity ue = new UserEntity();
     ue.setId(json.id());
     ue.setUsername(json.username());

@@ -33,6 +33,12 @@ public class DataSources {
                     dsBean.setXaProperties(props);
                     dsBean.setPoolSize(3);
                     dsBean.setMaxPoolSize(10);
+                    try {
+                        InitialContext context = new InitialContext();
+                        context.bind("java:comp/env/jdbc/" + uniqId, dsBean);
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
                     return dsBean;
                 }
         );

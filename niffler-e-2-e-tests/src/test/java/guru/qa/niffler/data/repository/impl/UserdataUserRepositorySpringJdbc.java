@@ -1,7 +1,8 @@
 package guru.qa.niffler.data.repository.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
+import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.dao.impl.UserdataUserDaoSpringJdbc;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
@@ -9,119 +10,54 @@ import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository, ResultSetExtractor<List<UserEntity>> {
     private static final Config CFG = Config.getInstance();
     private static final String URL = CFG.userdataJdbcUrl();
 
+    private final UserdataUserDao userdataUserDao = new UserdataUserDaoSpringJdbc();
 
     @Override
     public UserEntity create(UserEntity user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        KeyHolder kh = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO \"user\" (username, currency, firstname, full_name, photo, photo_small, surname) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getCurrency().name());
-            ps.setString(3, user.getFirstname());
-            ps.setString(4, user.getFullname());
-            ps.setBytes(5, user.getPhoto());
-            ps.setBytes(6, user.getPhotoSmall());
-            ps.setString(7, user.getSurname());
-            return ps;
-        }, kh);
-        final UUID generatedKey = (UUID) kh.getKeys().get("id");
-        user.setId(generatedKey);
-        return user;
+        return userdataUserDao.createUser(user);
     }
 
     @Override
-    public void delete(UUID id) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        jdbcTemplate.update("DELETE FROM \"friendship\" WHERE requester_id = ? OR addressee_id = ?", id);
-        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", id);
+    public UserEntity update(UserEntity user) {
+        return userdataUserDao.updateUser(user);
     }
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        List<UserEntity> users = jdbcTemplate.query(
-                        "SELECT * FROM \"user\" WHERE id = ?",
-                        this,
-                        id
-                );
-        return users != null && !users.isEmpty() ? Optional.of(users.get(0)) : Optional.empty();
+        return userdataUserDao.findById(id);
     }
 
     @Override
     public void addIncomeInvitation(UserEntity requester, UserEntity addressee) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        jdbcTemplate.update(
-                "INSERT INTO \"friendship\" (addressee_id, requester_id, created_date, status)" +
-                        "VALUES (?, ?, ?, ?)",
-                addressee.getId(),
-                requester.getId(),
-                LocalDate.now(),
-                FriendshipStatus.PENDING.name()
-        );
-
+        userdataUserDao.addIncomeInvitation(requester, addressee);
     }
 
     @Override
     public void addOutcomeInvitation(UserEntity requester, UserEntity addressee) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        jdbcTemplate.update(
-                "INSERT INTO \"friendship\" (addressee_id, requester_id, created_date, status)" +
-                        "VALUES (?, ?, ?, ?)",
-                addressee.getId(),
-                requester.getId(),
-                LocalDate.now(),
-                FriendshipStatus.PENDING.name()
-        );
-
+        userdataUserDao.addOutcomeInvitation(requester, addressee);
     }
 
     @Override
     public void addFriend(UserEntity requester, UserEntity addressee) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        jdbcTemplate.update("UPDATE \"friendship\" SET status = ? WHERE requester_id = ? AND addressee_id = ?",
-                FriendshipStatus.ACCEPTED.name(),
-                requester.getId(),
-                addressee.getId());
-
-
-        jdbcTemplate.update(
-                "INSERT INTO \"friendship\" (addressee_id, requester_id, created_date, status)" +
-                        "VALUES (?, ?, ?, ?)",
-                requester.getId(),
-                addressee.getId(),
-                LocalDate.now(),
-                FriendshipStatus.ACCEPTED.name()
-        );
+       userdataUserDao.addFriend(requester, addressee);
     }
 
     @Override
-    public List<UserEntity> findAllByUsername(String username) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        return jdbcTemplate.query(
-                "SELECT * FROM \"user\" WHERE username = ?",
-               this,
-                username
-        );
+    public Optional<UserEntity> findByUsername(String username) {
+        return userdataUserDao.findAllByUsername(username).stream().findFirst();
     }
 
     @Override
@@ -129,7 +65,7 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository,
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
         return jdbcTemplate.query(
                 "SELECT * FROM \"user\"",
-               this
+                this
         );
     }
 
@@ -140,7 +76,7 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository,
             UUID userId = rs.getObject("id", UUID.class);
             userMap.computeIfAbsent(userId, id -> {
                 try {
-                    UserEntity ue = UserdataUserEntityRowMapper.instance.mapRow(rs, rs.getRow());
+                    UserEntity ue = UserdataUserEntityRowMapper.instance.mapRow(rs, 0);
                     if (ue != null) {
                         ue.setFriendshipRequests(new ArrayList<>());
                         ue.setFriendshipAddressees(new ArrayList<>());
@@ -152,5 +88,10 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository,
             });
         }
         return new ArrayList<>(userMap.values());
+    }
+
+    @Override
+    public void remove(UserEntity user) {
+        userdataUserDao.delete(user);
     }
 }

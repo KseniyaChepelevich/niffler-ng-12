@@ -13,14 +13,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
 public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
     private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
 
     private static final Config CFG = Config.getInstance();
     private static final String URL = CFG.authJdbcUrl();
@@ -46,7 +50,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
             final UUID generatedKey;
             try (ResultSet rs = userPs.getGeneratedKeys()) {
                 if (rs.next()) {
-                    generatedKey = rs.getObject("id", UUID.class);
+                    generatedKey = rs.getObject(1, UUID.class);
                 } else {
                     throw new SQLException("Can't find id in ResultSet");
                 }
@@ -67,7 +71,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findUserById(UUID id) {
+    public Optional<AuthUserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(URL).connection().prepareStatement(
                 "SELECT a.id as authority_id, authority, u.id, u.username, u.password, " +
                         "u.enabled, u.account_non_expired, u.account_non_locked, u.credentials_non_expired " +
@@ -103,27 +107,24 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public void delete(UUID id) {
+    public void remove(AuthUserEntity user) {
         try {
             try (PreparedStatement psAuth = holder(URL).connection().prepareStatement(
                     "DELETE FROM \"authority\" WHERE user_id = ?"
             )) {
-                psAuth.setObject(1, id);
+                psAuth.setObject(1, user.getId());
                 psAuth.execute();
 
             }
             try (PreparedStatement ps = holder(URL).connection().prepareStatement(
                     "DELETE FROM \"user\" WHERE id = ?"
             )) {
-                ps.setObject(1, id);
+                ps.setObject(1, user.getId());
                 ps.execute();
-
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     @Override
@@ -143,7 +144,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
             int updatedRows = ps.executeUpdate();
             if (updatedRows == 0) {
-                throw new SQLException("Updating spend failed, no rows affected.");
+                throw new SQLException("Updating user failed, no rows affected.");
             }
             return user;
         } catch (SQLException e) {
@@ -152,7 +153,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findAllByUsername(String username) {
+    public Optional<AuthUserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(URL).connection().prepareStatement(
                 "SELECT a.id as authority_id, authority, u.id, u.username, u.password, " +
                         "u.enabled, u.account_non_expired, u.account_non_locked, u.credentials_non_expired " +
@@ -182,11 +183,9 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -223,6 +222,4 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
             throw new RuntimeException(e);
         }
     }
-
-
 }

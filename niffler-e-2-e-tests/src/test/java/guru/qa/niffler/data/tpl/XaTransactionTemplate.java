@@ -20,7 +20,29 @@ public class XaTransactionTemplate {
         return this;
     }
 
-    public <T> T execute(Supplier<T>... actions) {
+    public <T> T execute(Supplier<T> action) {
+        UserTransaction ut = new UserTransactionImp();
+        try {
+            ut.begin();
+            T result = action.get();
+            ut.commit();
+            return result;
+        } catch (Exception e) {
+            try {
+                ut.rollback();
+            } catch (SystemException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        } finally {
+            if (closeAfterAction.get()) {
+                holders.close();
+            }
+        }
+    }
+
+@SafeVarargs
+    public final  <T> T execute(Supplier<T>... actions) {
         UserTransaction ut = new UserTransactionImp();
         try {
             ut.begin();

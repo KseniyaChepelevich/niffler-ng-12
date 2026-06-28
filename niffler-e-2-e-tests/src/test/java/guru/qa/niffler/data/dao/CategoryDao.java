@@ -16,6 +16,7 @@ public interface CategoryDao {
     CategoryEntity update(CategoryEntity category);
 
     List<CategoryEntity> findAllByUsername(String username);
+    Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String name);
 
     List<CategoryEntity> findAll();
 }

@@ -8,21 +8,23 @@ import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
 
     private static final Config CFG = Config.getInstance();
-    private static final String URL = CFG.authJdbcUrl();
+
+    private JdbcTemplate jdbcTemplate() {
+        return new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+    }
 
     @Override
     public void create(AuthorityEntity... authorities) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        jdbcTemplate.batchUpdate(
-                "INSERT INTO authority (user_id, authority) VALUES (?, ?)",
+        jdbcTemplate().batchUpdate(
+                "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -41,10 +43,18 @@ public class AuthAuthorityDaoSpringJdbc implements AuthAuthorityDao {
 
     @Override
     public List<AuthorityEntity> findAll() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
-        return jdbcTemplate.query(
+        return jdbcTemplate().query(
                 "SELECT * FROM \"authority\"",
                 AuthAuthorityEntityRowMapper.instance
+        );
+    }
+
+    @Override
+    public List<AuthorityEntity> findAuthorityByUserId(UUID userId) {
+        return jdbcTemplate().query(
+                "SELECT * FROM \"authority\" WHERE user_id = ?",
+                AuthAuthorityEntityRowMapper.instance,
+                userId
         );
     }
 }

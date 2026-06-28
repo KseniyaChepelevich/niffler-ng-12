@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface UserdataUserDao {
     UserEntity createUser(UserEntity user);
 
-    void delete(UUID id);
+    void delete(UserEntity user);
 
 
     Optional<UserEntity> findById(UUID id);
@@ -18,4 +18,10 @@ public interface UserdataUserDao {
     List<UserEntity> findAllByUsername(String username);
 
     List<UserEntity> findAll();
+
+    UserEntity updateUser(UserEntity user);
+
+    void addIncomeInvitation(UserEntity requester, UserEntity addressee);
+    void addOutcomeInvitation(UserEntity requester, UserEntity addressee);
+    void addFriend(UserEntity requester, UserEntity addressee);
 }
