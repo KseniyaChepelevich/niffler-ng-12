@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserdataUserEntity implements Serializable {
+public class UserEntity implements Serializable {
   private UUID id;
   private String username;
   private CurrencyValues currency;

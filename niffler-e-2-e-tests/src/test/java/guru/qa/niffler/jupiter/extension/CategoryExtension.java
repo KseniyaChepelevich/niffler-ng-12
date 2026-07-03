@@ -1,49 +1,44 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.jupiter.annotation.Category;
-import guru.qa.niffler.jupiter.annotation.User;
+import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendDbClient;
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
+import java.sql.SQLException;
 
-public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterEachCallback {
+public class CategoryExtension implements BeforeEachCallback, ParameterResolver {
+
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
+
+
     private final SpendDbClient spendClient = new SpendDbClient();
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        AnnotationSupport.findAnnotation(context.getRequiredTestMethod(),
-                User.class
+    public void beforeEach(ExtensionContext context) {
+        AnnotationSupport.findAnnotation(
+                context.getRequiredTestMethod(),
+                Spending.class
         ).ifPresent(
-                userAnno -> {
-                    if (ArrayUtils.isNotEmpty(userAnno.categories())) {
-                        Category categoryAnno = userAnno.categories()[0];
-
-                        final CategoryJson created = spendClient.createCategory(
+                anno -> {
+                    final CategoryJson created;
+                    try {
+                        created = spendClient.createCategory(
                                 new CategoryJson(
                                         null,
-                                        randomCategoryName(),
-                                        userAnno.username(),
-                                        categoryAnno.archived()
+                                        anno.category(),
+                                        anno.username(),
+                                        false
                                 )
                         );
-                        context.getStore(NAMESPACE).put(
-                                context.getUniqueId(),
-                                created
-                        );
-                        context.getStore(NAMESPACE).put(context.getUniqueId() + "_name", created.name());
-
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-
+                    context.getStore(NAMESPACE).put(
+                            context.getUniqueId(),
+                            created
+                    );
                 }
         );
     }
@@ -54,22 +49,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public CategoryJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), CategoryJson.class);
-    }
-
-
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        System.out.println("Запустился afterEach");
-        CategoryJson createdCategory = context.getStore(NAMESPACE).get(
-                context.getUniqueId(),
-                CategoryJson.class
-        );
-        if (createdCategory != null) {
-            spendClient.deleteCategory(createdCategory);
-
-        }
-
     }
 }
