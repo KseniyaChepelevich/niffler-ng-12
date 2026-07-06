@@ -6,9 +6,11 @@ import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
+import guru.qa.niffler.jupiter.extension.TestMethodContextExtension;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.LoginPage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 @WebTest
 public class SpendingTest {
@@ -20,11 +22,11 @@ public class SpendingTest {
             spendings = @Spending(
                     description = "Новое обучение",
                     category = "Самая новая категория",
-                    amount = 90000
-            )
+                    amount = 90000)
     )
     @Test
     void spendingDescriptionShouldBeEditedByTableAction(SpendJson spendJson) {
+        ExtensionContext ctx = TestMethodContextExtension.context();
         final String newDescription = "Niffler - 12 поток!!!";
 
         Selenide.open(CFG.frontUrl(), LoginPage.class)

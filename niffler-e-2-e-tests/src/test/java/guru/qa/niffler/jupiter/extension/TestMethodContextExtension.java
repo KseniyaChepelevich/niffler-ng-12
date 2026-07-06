@@ -16,7 +16,10 @@ public class TestMethodContextExtension implements BeforeEachCallback, AfterEach
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
         store.remove();
+    }
 
+    public static ExtensionContext context(){
+        return store.get();
     }
 
 
