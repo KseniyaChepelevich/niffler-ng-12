@@ -1,8 +1,8 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.UserdataUserDao;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
-import guru.qa.niffler.data.mapper.SpendEntityRowMapper;
+import guru.qa.niffler.data.entity.UserEntity;
+
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,7 +24,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
 
 
     @Override
-    public UserdataUserEntity createUser(UserdataUserEntity user) {
+    public UserEntity createUser(UserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -53,7 +53,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserdataUserEntity> findById(UUID id) {
+    public Optional<UserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return Optional.ofNullable(
                 jdbcTemplate.queryForObject(
@@ -65,20 +65,21 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
-    public List<UserdataUserEntity> findAllByUsername(String username) {
+    public Optional<UserEntity> findAllByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return jdbcTemplate.query(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM \"user\" WHERE username = ?",
                 UserdataUserEntityRowMapper.instance,
                 username
+                )
         );
     }
 
     @Override
-    public List<UserdataUserEntity> findAll() {
+    public List<UserEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
-                "SELECT * FROM \"user\" WHERE",
+                "SELECT * FROM \"user\"",
                 UserdataUserEntityRowMapper.instance
         );
     }

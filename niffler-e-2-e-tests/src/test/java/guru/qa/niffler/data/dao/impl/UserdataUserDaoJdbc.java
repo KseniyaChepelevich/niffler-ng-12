@@ -1,18 +1,23 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.data.Databases;
 import guru.qa.niffler.data.dao.UserdataUserDao;
+
 import guru.qa.niffler.data.entity.UserEntity;
-import guru.qa.niffler.data.entity.SpendEntity;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
 import guru.qa.niffler.model.CurrencyValues;
+
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+
 
 public class UserdataUserDaoJdbc implements UserdataUserDao {
 
@@ -60,7 +65,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public void delete(UUID id) throws SQLException{
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "DELETE FROM user WHERE id = ?"
+                    "DELETE FROM \"user\" WHERE id = ?"
             )) {
                 ps.setObject(1, id);
                 ps.executeUpdate();
@@ -72,7 +77,7 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     public Optional<UserEntity> findById(UUID id) throws SQLException{
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE id = ?"
+                    "SELECT * FROM \"user\" WHERE id = ?"
             )) {
                 ps.setObject(1, id);
                 ps.execute();
@@ -88,16 +93,16 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) throws SQLException{
+    public Optional<UserEntity> findAllByUsername(String username) throws SQLException {
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE username = ?"
+                    "SELECT * FROM \"user\" WHERE username = ?"
             )) {
-                ps.setObject(1, username);
+                ps.setString(1, username);
                 ps.execute();
                 try (ResultSet rs = ps.getResultSet()) {
                     if (rs.next()) {
-                                                return Optional.of(mapRow(rs));
+                        return Optional.of(mapRow(rs));
                     } else {
                         return Optional.empty();
                     }
@@ -105,6 +110,31 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             }
         }
     }
+
+    @Override
+    public List<UserEntity> findAll() throws SQLException {
+        List<UserEntity> listUsers = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                    "SELECT * FROM \"user\""
+            )) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                       UserEntity user = new UserEntity();
+                       user.setId(rs.getObject("id", UUID.class));
+                       user.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                       user.setFirstname(rs.getString("firstname"));
+                        user.setFullname(rs.getString("fullname"));
+                        user.setPhoto(rs.getBytes("photo"));
+                        user.setPhotoSmall(rs.getBytes("photoSmall"));
+                        user.setSurname(rs.getString("surname"));
+                        user.setUsername(rs.getString("username"));
+
+                       listUsers.add(user);
+                    }
+                }
+                return listUsers;
+            }
+        }
 
     private UserEntity mapRow(ResultSet rs) throws SQLException{
         UserEntity user = new UserEntity();

@@ -1,7 +1,6 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.CategoryDao;
-import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.CategoryEntity;
 
 import java.sql.Connection;
@@ -77,7 +76,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public void delete(CategoryEntity category) {
+    public void deleteCategory(CategoryEntity category) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "DELETE FROM category WHERE id = ?"
         )) {
@@ -107,6 +106,32 @@ public class CategoryDaoJdbc implements CategoryDao {
                 throw new SQLException("Updating spend failed, no rows affected.");
             }
             return category;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String categoryName) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM category WHERE username = ? AND name = ?"
+        )) {
+            ps.setString(1, username);
+            ps.setString(2, categoryName);
+            ps.execute();
+            try (ResultSet rs = ps.getResultSet()) {
+                if (rs.next()) {
+
+                    CategoryEntity ce = new CategoryEntity();
+                    ce.setId(rs.getObject("id", UUID.class));
+                    ce.setUsername(rs.getString("username"));
+                    ce.setName(rs.getString("name"));
+                    ce.setArchived(rs.getBoolean("archived"));
+                    return Optional.of(ce);
+                } else {
+                    return Optional.empty();
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -2,16 +2,21 @@ package guru.qa.niffler.service;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.Databases;
-import guru.qa.niffler.data.dao.impl.*;
+import guru.qa.niffler.data.dao.impl.AuthUserDaoSpringJdbc;
+import guru.qa.niffler.data.dao.impl.AuthAuthorityDaoSpringJdbc;
+import guru.qa.niffler.data.dao.impl.UserdataUserDaoSpringJdbc;
+import guru.qa.niffler.data.dao.impl.AuthUserDaoJdbc;
+import guru.qa.niffler.data.dao.impl.AuthAuthorityDaoJdbc;
+import guru.qa.niffler.data.dao.impl.UserdataUserDaoJdbc;
 import guru.qa.niffler.data.entity.AuthAuthorityEntity;
 import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
+import guru.qa.niffler.data.entity.UserEntity;
 import guru.qa.niffler.model.UserdataUserJson;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 
@@ -51,7 +56,7 @@ new AuthAuthorityDaoSpringJdbc(dataSource(CFG.authJdbcUrl()))
 return UserdataUserJson.fromEntity(
         new UserdataUserDaoSpringJdbc(dataSource(CFG.userdataJdbcUrl()))
         .createUser(
-                UserdataUserEntity.fromJson(user)
+                UserEntity.fromJson(user)
         ),
         null
 );
@@ -86,12 +91,16 @@ return UserdataUserJson.fromEntity(
                         ),
                         new Databases.XaFunction<>(
                                 con -> {
-                                    UserdataUserEntity userdataUserEntity = new UserdataUserEntity();
-                                    userdataUserEntity.setUsername(user.username());
-                                    userdataUserEntity.setFullname(user.fullname());
-                                    userdataUserEntity.setCurrency(user.currency());
-                                    new UserdataUserDaoJdbc(con).createUser(userdataUserEntity);
-                                    return userdataUserEntity;
+                                    UserEntity userEntity = new UserEntity();
+                                    userEntity.setUsername(user.username());
+                                    userEntity.setFullname(user.fullname());
+                                    userEntity.setCurrency(user.currency());
+                                    try {
+                                        new UserdataUserDaoJdbc(con).createUser(userEntity);
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    return userEntity;
                                 },
                                 CFG.userdataJdbcUrl()
                         )

@@ -2,9 +2,7 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.mapper.AuthAuthorityEntityRowMapper;
 import guru.qa.niffler.data.mapper.AuthUserEntityRowMapper;
-import guru.qa.niffler.data.mapper.CategoryEntityRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;

@@ -19,4 +19,6 @@ public interface CategoryDao {
     Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String categoryName) throws SQLException;
 
     List<CategoryEntity> findAllByUsername(String username) throws SQLException;
+
+    List<CategoryEntity> findAll();
 }

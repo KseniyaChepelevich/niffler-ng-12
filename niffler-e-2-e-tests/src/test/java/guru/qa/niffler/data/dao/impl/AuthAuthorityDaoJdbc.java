@@ -2,7 +2,6 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.AuthAuthorityEntity;
-import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
 
 import java.sql.Connection;

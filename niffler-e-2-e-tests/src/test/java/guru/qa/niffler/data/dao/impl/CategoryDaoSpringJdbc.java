@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
-    public void delete(CategoryEntity category) {
+    public void deleteCategory(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
                 "DELETE FROM \"category\" WHERE id = ?",
@@ -80,6 +81,18 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
             return ps;
         });
         return category;
+    }
+
+    @Override
+    public Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String categoryName) throws SQLException {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return Optional.ofNullable(
+                jdbcTemplate.queryForObject(
+                        "SELECT * FROM \"category\" WHERE username = ? AND name = ?",
+                        CategoryEntityRowMapper.instance,
+                        username, categoryName
+                )
+        );
     }
 
     @Override

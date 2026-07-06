@@ -50,7 +50,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
-    public void delete(SpendEntity spend) {
+    public void deleteSpend(SpendEntity spend) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(
                 "DELETE FROM \"spend\" WHERE id = ?",

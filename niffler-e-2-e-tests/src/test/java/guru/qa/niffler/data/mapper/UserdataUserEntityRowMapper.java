@@ -1,7 +1,6 @@
 package guru.qa.niffler.data.mapper;
 
-import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.entity.UserdataUserEntity;
+import guru.qa.niffler.data.entity.UserEntity;
 import guru.qa.niffler.model.CurrencyValues;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -9,16 +8,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class UserdataUserEntityRowMapper implements RowMapper<UserdataUserEntity> {
+public class UserdataUserEntityRowMapper implements RowMapper<UserEntity> {
 
-    public static final UserdataUserEntityRowMapper instance = new UserdataUserEntityRowMapper();
+    public static final RowMapper<UserEntity> instance = new UserdataUserEntityRowMapper();
 
     private UserdataUserEntityRowMapper() {
     }
 
     @Override
-    public UserdataUserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-        UserdataUserEntity result = new UserdataUserEntity();
+    public UserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+        UserEntity result = new UserEntity();
         result.setId(rs.getObject("id", UUID.class));
         result.setUsername(rs.getString("username"));
         result.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));

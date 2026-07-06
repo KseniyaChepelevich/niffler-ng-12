@@ -21,8 +21,8 @@ public class UserEntity implements Serializable {
   private byte[] photo;
   private byte[] photoSmall;
 
-  public static UserdataUserEntity fromJson(UserdataUserJson json) {
-    UserdataUserEntity ue = new UserdataUserEntity();
+  public static UserEntity fromJson(UserdataUserJson json) {
+    UserEntity ue = new UserEntity();
     ue.setId(json.id());
     ue.setUsername(json.username());
     ue.setCurrency(json.currency());

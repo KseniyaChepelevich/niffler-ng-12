@@ -24,9 +24,11 @@ public record UserdataUserJson(
         @JsonProperty("photo")
         String photo,
         @JsonProperty("photoSmall")
-        String photoSmall) {
+        String photoSmall,
+        @JsonProperty("friendshipStatus")
+        FriendshipStatus friendshipStatus) {
 
-    public static UserdataUserJson fromEntity(UserEntity entity) {
+    public static UserdataUserJson fromEntity(UserEntity entity, FriendshipStatus friendshipStatus) {
         return new UserdataUserJson(
                 entity.getId(),
                 entity.getUsername(),

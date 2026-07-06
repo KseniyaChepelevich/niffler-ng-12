@@ -4,6 +4,7 @@ import guru.qa.niffler.data.entity.UserEntity;
 
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,5 +16,7 @@ public interface UserdataUserDao {
 
     Optional<UserEntity> findById(UUID id) throws SQLException;
 
-    Optional<UserEntity> findByUsername(String username) throws SQLException;
+    Optional<UserEntity> findAllByUsername(String username) throws SQLException;
+
+    List<UserEntity> findAll() throws SQLException;
 }
