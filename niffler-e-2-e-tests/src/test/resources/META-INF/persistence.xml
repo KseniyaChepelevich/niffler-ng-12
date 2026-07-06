@@ -8,8 +8,8 @@
         <class>guru.qa.niffler.data.entity.userdata.UserEntity</class>
         <class>guru.qa.niffler.data.entity.userdata.FriendshipEntity</class>
         <class>guru.qa.niffler.data.entity.userdata.FriendShipId</class>
-        <class>guru.qa.niffler.data.entity.spend.SpendEntity</class>
-        <class>guru.qa.niffler.data.entity.spend.CategoryEntity</class>
+        <class>guru.qa.niffler.data.entity.SpendEntity</class>
+        <class>guru.qa.niffler.data.entity.CategoryEntity</class>
     </persistence-unit>
 
 </persistence>
