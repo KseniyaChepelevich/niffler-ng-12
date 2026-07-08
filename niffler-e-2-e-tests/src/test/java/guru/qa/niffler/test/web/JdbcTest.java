@@ -1,10 +1,6 @@
 package guru.qa.niffler.test.web;
 
-import guru.qa.niffler.data.entity.AuthUserEntity;
-import guru.qa.niffler.data.entity.Authority;
 import guru.qa.niffler.model.*;
-import guru.qa.niffler.service.AuthAuthorityDbClient;
-import guru.qa.niffler.service.AuthUserDbClient;
 import guru.qa.niffler.service.SpendDbClient;
 import guru.qa.niffler.service.UsersDbClient;
 import lombok.SneakyThrows;
@@ -62,52 +58,26 @@ public class JdbcTest {
         System.out.println(spend);
     }
 
-    @Test
-    void daoAuthTest() {
-        AuthUserDbClient authUserDbClient = new AuthUserDbClient();
-        AuthAuthorityDbClient authAuthorityDbClient = new AuthAuthorityDbClient();
-
-        AuthUserEntity user = new AuthUserEntity();
-        user.setUsername("dogdog3" + System.currentTimeMillis());
-        user.setPassword("555");
-        user.setAccountNonExpired(true);
-        user.setAccountNonLocked(true);
-        user.setCredentialsNonExpired(true);
-        user.setEnabled(true);
-
-        AuthUserEntity savedUser = authUserDbClient.createUser(user);
-
-        AuthAuthorityJson authorityJson = authAuthorityDbClient.createAuthority(
-                new AuthAuthorityJson(
-                        null,
-                        Authority.read,
-                        savedUser.getId()
-                )
-        );
-
-        System.out.println(authorityJson);
 
 
-    }
-
-    @Test
-    void xaTxTest() {
-        UsersDbClient usersDbClient = new UsersDbClient();
-        UserdataUserJson user = usersDbClient.createUser(
-                new UserdataUserJson(
-                        null,
-                        "valentin-41",
-                                null,
-                        null,
-                        null,
-                        CurrencyValues.RUB,
-                        null,
-                        null,
-                        null
-                )
-        );
-        System.out.println(user);
-    }
+//    @Test
+//    void xaTxTest() {
+//        UsersDbClient usersDbClient = new UsersDbClient();
+//        UserdataUserJson user = usersDbClient.createUser(
+//                new UserdataUserJson(
+//                        null,
+//                        "valentin-41",
+//                                null,
+//                        null,
+//                        null,
+//                        CurrencyValues.RUB,
+//                        null,
+//                        null,
+//                        null
+//                )
+//        );
+//        System.out.println(user);
+//    }
 
 
     @Test
@@ -116,7 +86,7 @@ public class JdbcTest {
         UserdataUserJson user = usersDbClient.createUserSpringJdbc(
                 new UserdataUserJson(
                         null,
-                        "valentin-42",
+                        "valentin-53",
                         null,
                         null,
                         null,

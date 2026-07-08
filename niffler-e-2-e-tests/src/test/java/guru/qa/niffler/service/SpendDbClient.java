@@ -1,104 +1,101 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.data.dao.CategoryDao;
+import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.dao.impl.CategoryDaoJdbc;
-import guru.qa.niffler.data.dao.impl.CategoryDaoSpringJdbc;
 import guru.qa.niffler.data.dao.impl.SpendDaoJdbc;
-import guru.qa.niffler.data.dao.impl.SpendDaoSpringJdbc;
 import guru.qa.niffler.data.entity.CategoryEntity;
 import guru.qa.niffler.data.entity.SpendEntity;
+import guru.qa.niffler.data.tpl.JdbcTransactionTemplate;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
-import static guru.qa.niffler.data.Databases.transaction;
-import static guru.qa.niffler.data.Databases.dataSource;
 
 public class SpendDbClient {
 
     private static final Config CFG = Config.getInstance();
 
+    private final CategoryDao categoryDao = new CategoryDaoJdbc();
+    private final SpendDao spendDao = new SpendDaoJdbc();
+
+    private final JdbcTransactionTemplate jdbcTxTemplate = new JdbcTransactionTemplate(
+            CFG.spendJdbcUrl()
+    );
 
 
     public SpendJson createSpend(SpendJson spend) throws SQLException {
-        return transaction(connection -> {
+        return jdbcTxTemplate.execute(() -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spend);
                     if (spendEntity.getCategory().getId() == null) {
-                        CategoryEntity categoryEntity = new CategoryDaoJdbc(connection)
-                                .create(spendEntity.getCategory());
+                        CategoryEntity categoryEntity = categoryDao.create(spendEntity.getCategory());
                         spendEntity.setCategory(categoryEntity);
                     }
                     return SpendJson.fromEntity(
-                            new SpendDaoJdbc(connection).create(spendEntity));
-                },
-                CFG.spendJdbcUrl()
+                            spendDao.create(spendEntity));
+                }
+
         );
     }
 
     public CategoryJson createCategory(CategoryJson category) throws SQLException {
-        return transaction(connection -> {
+        return jdbcTxTemplate.execute(() -> {
                     CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
                     return CategoryJson.fromEntity(
-                            new CategoryDaoJdbc(connection).create(categoryEntity));
-                },
-                CFG.spendJdbcUrl()
+                            categoryDao.create(categoryEntity));
+                }
 
         );
     }
 
     public CategoryJson updateCategory(CategoryJson category) {
-        return transaction(connection -> {
+        return jdbcTxTemplate.execute(() -> {
                     CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
                     return CategoryJson.fromEntity(
-                            new CategoryDaoJdbc(connection).update(categoryEntity));
-                },
-                CFG.spendJdbcUrl()
+                            categoryDao.update(categoryEntity));
+                }
         );
     }
 
     public void deleteSpending(SpendJson spending) {
-        transaction(connection -> {
+        jdbcTxTemplate.execute(() -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spending);
-                    new SpendDaoJdbc(connection).deleteSpend(spendEntity);
+                    spendDao.deleteSpend(spendEntity);
                     return null;
-                },
-                CFG.spendJdbcUrl()
+                }
         );
     }
 
     public void deleteCategory(CategoryJson category) {
-        transaction(connection -> {
+        jdbcTxTemplate.execute(() -> {
                     CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
-                    new CategoryDaoJdbc(connection).deleteCategory(categoryEntity);
+                    categoryDao.deleteCategory(categoryEntity);
                     return null;
-                },
-                CFG.spendJdbcUrl()
+                }
         );
     }
 
     public SpendJson createSpendSpringJdbc(SpendJson spend) throws SQLException {
-        return transaction(connection -> {
+        return jdbcTxTemplate.execute(() -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spend);
                     if (spendEntity.getCategory().getId() == null) {
-                        CategoryEntity categoryEntity = new CategoryDaoSpringJdbc(dataSource(CFG.spendJdbcUrl()))
-                                .create(spendEntity.getCategory());
+                        CategoryEntity categoryEntity = categoryDao.create(spendEntity.getCategory());
                         spendEntity.setCategory(categoryEntity);
                     }
                     return SpendJson.fromEntity(
-                            new SpendDaoSpringJdbc(dataSource(CFG.spendJdbcUrl())).create(spendEntity));
-                },
-                CFG.spendJdbcUrl()
+                            spendDao.create(spendEntity));
+                }
         );
     }
+
     public CategoryJson createCategorySpringJdbc(CategoryJson category) throws SQLException {
-        return transaction(connection -> {
+        return jdbcTxTemplate.execute(() -> {
                     CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
                     return CategoryJson.fromEntity(
-                            new CategoryDaoSpringJdbc(dataSource(CFG.spendJdbcUrl())).create(categoryEntity));
-                },
-                CFG.spendJdbcUrl()
+                            categoryDao.create(categoryEntity));
+                }
 
         );
     }

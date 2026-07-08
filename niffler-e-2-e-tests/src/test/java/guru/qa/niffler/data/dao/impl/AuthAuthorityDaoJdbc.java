@@ -1,25 +1,23 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.AuthAuthorityEntity;
 import guru.qa.niffler.data.entity.Authority;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static guru.qa.niffler.data.tpl.Connections.holder;
+
 public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
-    private final Connection connection;
-
-    public AuthAuthorityDaoJdbc(Connection connection) {
-        this.connection = connection;
-    }
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public void create(AuthAuthorityEntity... authorities) {
@@ -27,7 +25,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
             return;
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO \"authority\" (\"authority\", user_id)" +
                         "VALUES (?, ?)",
                 Statement.RETURN_GENERATED_KEYS
@@ -57,7 +55,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
     @Override
     public List<AuthAuthorityEntity> findAll() {
         List<AuthAuthorityEntity> listAuthorities = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM \"authority\""
         )) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -77,5 +75,30 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public List<AuthAuthorityEntity> findAllByUserId(UUID id) {
+        List<AuthAuthorityEntity> listAuthorities = new ArrayList<>();
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "SELECT * FROM \"authority\" WHERE user_id = ?"
+        )) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AuthAuthorityEntity authority = new AuthAuthorityEntity();
+                    authority.setId(rs.getObject("id", UUID.class));
+                    authority.setAuthority(Authority.valueOf(rs.getString("authority")));
+                    authority.setUserId(rs.getObject("user_id", UUID.class));
+
+                    listAuthorities.add(authority);
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return listAuthorities;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
