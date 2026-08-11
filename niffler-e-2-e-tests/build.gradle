@@ -126,6 +126,7 @@ dependencies {
     // Lombok
     testAnnotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${project.ext.lombokVersion}"
+
 }
 
 tasks.withType(JavaCompile).configureEach {

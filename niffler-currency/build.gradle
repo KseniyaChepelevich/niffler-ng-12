@@ -1,6 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '3.5.8'
     id 'com.google.cloud.tools.jib' version '3.4.1'
+
 }
 
 group = 'guru.qa'
