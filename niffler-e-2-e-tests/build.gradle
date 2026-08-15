@@ -3,7 +3,7 @@ buildscript {
         junitVersion = '5.14.1'
         allureVersion = '2.32.0'
         aspectJVersion = '1.9.22'
-        selenideVersion = '7.13.0'
+        selenideVersion = '7.16.2'
         okhttp3Version = '5.3.2'
         retrofitVersion = '3.0.0'
         apollographqlVersion = '0.0.2'
@@ -19,6 +19,7 @@ buildscript {
         wiremockVersion = '3.13.2'
         ashotVersion = '1.5.4'
         fakerVersion = '1.0.2'
+        atomikosVersion = '6.0.0'
         userdataWsdlUrl = System.getProperty("test.env") == "docker"
                 ? "http://userdata.niffler.dc:8089/ws/userdata.wsdl"
                 : "http://localhost:8089/ws/userdata.wsdl"
@@ -83,6 +84,11 @@ dependencies {
     // DB
     testImplementation "org.springframework:spring-jdbc:${springJdbcVersion}"
     testImplementation "org.postgresql:postgresql:${project.ext.postgresDriverVersion}"
+
+    testImplementation "com.atomikos:transactions-jta:${atomikosVersion}:jakarta"
+    testImplementation "com.atomikos:transactions-hibernate4:${atomikosVersion}:jakarta"
+    testImplementation "com.atomikos:transactions-jdbc:${atomikosVersion}"
+
     testImplementation "p6spy:p6spy:${p6spyVersion}"
     testImplementation "org.hibernate:hibernate-core:${hibernateVersion}"
     testImplementation "org.springframework.security:spring-security-crypto:${springCryptoVersion}"
@@ -107,6 +113,7 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.21.0'
     testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'com.github.vertical-blank:sql-formatter:2.0.5'
+    testImplementation 'com.github.h-thurow:simple-jndi:0.25.0'
     // gRPC
     testImplementation "io.grpc:grpc-api:${project.ext.grpcVersion}"
     testImplementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
@@ -126,6 +133,8 @@ dependencies {
     // Lombok
     testAnnotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${project.ext.lombokVersion}"
+
+
 
 }
 

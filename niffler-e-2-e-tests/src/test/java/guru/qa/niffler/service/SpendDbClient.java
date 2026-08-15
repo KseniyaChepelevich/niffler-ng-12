@@ -1,131 +1,158 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.data.entity.spend.CategoryEntity;
+import guru.qa.niffler.data.entity.spend.SpendEntity;
+import guru.qa.niffler.data.repository.SpendRepository;
+import guru.qa.niffler.data.repository.impl.SpendRepositoryHibernate;
+import guru.qa.niffler.data.repository.impl.SpendRepositoryJdbc;
+import guru.qa.niffler.data.repository.impl.SpendRepositorySpringJdbc;
+import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
 public class SpendDbClient implements SpendClient {
 
-  private static final Config CFG = Config.getInstance();
+    private static final Config CFG = Config.getInstance();
 
-  @Override
-  public SpendJson createSpending(SpendJson spending) {
-    final JdbcTemplate jdbcTemplate = new JdbcTemplate(
-        new SingleConnectionDataSource(
-            CFG.spendJdbcUrl(),
-            CFG.dbUsername(),
-            CFG.dbPassword(),
-            false
-        )
+    private final SpendRepository spendRepositoryJdbc = new SpendRepositoryJdbc();
+    private final SpendRepository spendRepositorySpringJdbc = new SpendRepositorySpringJdbc();
+    private final SpendRepository spendRepositoryHibernate = new SpendRepositoryHibernate();
+
+    private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
+            CFG.spendJdbcUrl()
     );
 
-    final CategoryJson category = findByUsernameAndName(
-        spending.username(),
-        spending.category().name()
-    ).orElseGet(() -> createCategory(spending.category()));
 
-    final KeyHolder keyHolder = new GeneratedKeyHolder();
+    @Override
+    public SpendJson createSpending(SpendJson spending) {
+        return SpendJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            SpendEntity spend = SpendEntity.fromJson(spending);
+            return spendRepositoryJdbc.create(spend);
+        }));
+    }
 
-    jdbcTemplate.update(
-        con -> {
-          PreparedStatement ps = con.prepareStatement(
-              """
-                INSERT INTO "spend" (username, spend_date, currency, amount, description, category_id) VALUES (?, ?, ?, ?, ?, ?)
-              """,
-              Statement.RETURN_GENERATED_KEYS
-          );
-          ps.setString(1, spending.username());
-          ps.setDate(2, new java.sql.Date(spending.spendDate().getTime()));
-          ps.setString(3, spending.currency().name());
-          ps.setDouble(4, spending.amount());
-          ps.setString(5, spending.description());
-          ps.setObject(6, category.id());
-          return ps;
-        },
-        keyHolder
-    );
+    public SpendJson createSpendingSpringJdbc(SpendJson spending) {
+        return SpendJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            SpendEntity spend = SpendEntity.fromJson(spending);
+            return spendRepositorySpringJdbc.create(spend);
+        }));
+    }
 
-    return new SpendJson(
-        (UUID) keyHolder.getKeys().get("id"),
-        spending.spendDate(),
-        category,
-        spending.currency(),
-        spending.amount(),
-        spending.description(),
-        spending.username()
-    );
-  }
+    public SpendJson createSpendingHibernate(SpendJson spending) {
+        return SpendJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            SpendEntity spend = SpendEntity.fromJson(spending);
+            return spendRepositoryHibernate.create(spend);
+        }));
+    }
 
-  @Override
-  public CategoryJson createCategory(CategoryJson category) {
-    final JdbcTemplate jdbcTemplate = new JdbcTemplate(
-        new SingleConnectionDataSource(
-            CFG.spendJdbcUrl(),
-            CFG.dbUsername(),
-            CFG.dbPassword(),
-            false
-        )
-    );
+    @Override
+    public CategoryJson createCategory(CategoryJson category) {
+        return CategoryJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            CategoryEntity categoryE = CategoryEntity.fromJson(category);
+            return spendRepositoryJdbc.createCategory(categoryE);
+        }));
 
-    final KeyHolder keyHolder = new GeneratedKeyHolder();
+    }
 
-    jdbcTemplate.update(
-        con -> {
-          PreparedStatement ps = con.prepareStatement(
-              """
-              INSERT INTO category (name, username, archived)
-              VALUES (?, ?, ?)
-              """,
-              Statement.RETURN_GENERATED_KEYS
-          );
-          ps.setString(1, category.name());
-          ps.setString(2, category.username());
-          ps.setBoolean(3, category.archived());
-          return ps;
-        },
-        keyHolder
-    );
+    public CategoryJson createCategorySpringJdbc(CategoryJson category) {
+        return CategoryJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            CategoryEntity categoryE = CategoryEntity.fromJson(category);
+            return spendRepositorySpringJdbc.createCategory(categoryE);
+        }));
+    }
 
-    return new CategoryJson(
-        (UUID) keyHolder.getKeys().get("id"),
-        category.name(),
-        category.username(),
-        category.archived()
-    );
-  }
+    public CategoryJson createCategoryHibernate(CategoryJson category) {
+        return CategoryJson.fromEntity(xaTransactionTemplate.execute(() -> {
+            CategoryEntity categoryE = CategoryEntity.fromJson(category);
+            return spendRepositoryHibernate.createCategory(categoryE);
+        }));
+    }
 
-  @Override
-  public Optional<CategoryJson> findByUsernameAndName(String username, String name) {
-    final JdbcTemplate jdbcTemplate = new JdbcTemplate(
-        new SingleConnectionDataSource(
-            CFG.spendJdbcUrl(),
-            CFG.dbUsername(),
-            CFG.dbPassword(),
-            false
-        )
-    );
-    return Optional.ofNullable(jdbcTemplate.queryForObject(
-        """
-            SELECT * FROM category WHERE username = ? AND name = ?
-            """,
-        (rs, num) -> new CategoryJson(
-            (UUID) rs.getObject("id"),
-            rs.getString("name"),
-            rs.getString("username"),
-            rs.getBoolean("archived")
-        ),
-        username,
-        name
-    ));
-  }
+    @Override
+    public Optional<CategoryJson> findCategoryByUsernameAndCategoryName(String username, String category) {
+        return spendRepositoryJdbc.findCategoryByUsernameAndCategoryName(username, category)
+                .map(CategoryJson::fromEntity);
+    }
+
+    public Optional<CategoryJson> findByUsernameAndNameSpringJdbc(String username, String category) {
+        return spendRepositorySpringJdbc.findCategoryByUsernameAndCategoryName(username, category)
+                .map(CategoryJson::fromEntity);
+    }
+
+    public Optional<CategoryJson> findByUsernameAndNameHibernate(String username, String category) {
+        return spendRepositoryHibernate.findCategoryByUsernameAndCategoryName(username, category)
+                .map(CategoryJson::fromEntity);
+    }
+
+    public SpendJson update(SpendJson spend) {
+        SpendEntity se = SpendEntity.fromJson(spend);
+        return SpendJson.fromEntity(spendRepositoryJdbc.update(se));
+    }
+
+    @Override
+    public Optional<CategoryJson> findCategoryById(UUID id) {
+        return spendRepositoryJdbc.findCategoryById(id)
+                .map(CategoryJson::fromEntity);
+    }
+
+    @Override
+    public Optional<SpendJson> findById(UUID id) {
+        return spendRepositoryJdbc.findById(id)
+                .map(SpendJson::fromEntity);
+    }
+
+    @Override
+    public Optional<SpendJson> findByUsernameAndSpendDescription(String username, String description) {
+        return spendRepositorySpringJdbc.findByUsernameAndSpendDescription(username, description)
+                .map(SpendJson::fromEntity);
+    }
+
+
+
+    public SpendJson updateSpringJdbc(SpendJson spend) {
+        SpendEntity se = SpendEntity.fromJson(spend);
+        return SpendJson.fromEntity(spendRepositorySpringJdbc.update(se));
+    }
+
+    public SpendJson updateHibernate(SpendJson spend) {
+        SpendEntity se = SpendEntity.fromJson(spend);
+        return SpendJson.fromEntity(spendRepositoryHibernate.update(se));
+    }
+    @Override
+    public void deleteSpending(SpendJson spending) {
+        SpendEntity se = SpendEntity.fromJson(spending);
+        spendRepositoryJdbc.remove(se);
+    }
+
+    public void deleteSpendingSpringJdbc(SpendJson spending) {
+        SpendEntity se = SpendEntity.fromJson(spending);
+        spendRepositorySpringJdbc.remove(se);
+    }
+
+    public void deleteSpendingHibernate(SpendJson spending) {
+        SpendEntity se = SpendEntity.fromJson(spending);
+        spendRepositoryHibernate.remove(se);
+    }
+    @Override
+    public void deleteCategory(CategoryJson category) {
+        CategoryEntity ce = CategoryEntity.fromJson(category);
+        spendRepositoryJdbc.removeCategory(ce);
+    }
+
+    public void deleteCategorySpringJdbc(CategoryJson category) {
+        CategoryEntity ce = CategoryEntity.fromJson(category);
+        spendRepositorySpringJdbc.removeCategory(ce);
+    }
+
+    public void deleteCategoryHibernate(CategoryJson category) {
+        CategoryEntity ce = CategoryEntity.fromJson(category);
+        spendRepositoryHibernate.removeCategory(ce);
+    }
+
+
+
 }
