@@ -24,7 +24,7 @@ public interface Config {
 
     String currencyJdbcUrl();
 
-    String githubUrl();
+    String ghUrl();
 
     String dbUsername();
 

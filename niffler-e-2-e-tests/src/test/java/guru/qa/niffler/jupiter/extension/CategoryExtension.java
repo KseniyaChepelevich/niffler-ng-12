@@ -40,7 +40,6 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
                                 context.getUniqueId(),
                                 created
                         );
-                        context.getStore(NAMESPACE).put(context.getUniqueId() + "_name", created.name());
 
                     }
 
@@ -50,7 +49,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType().isAssignableFrom(CategoryJson.class);
+        return parameterContext.getParameter().getType().equals(CategoryJson.class);
     }
 
     @Override
@@ -61,7 +60,6 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        System.out.println("Запустился afterEach");
         CategoryJson createdCategory = context.getStore(NAMESPACE).get(
                 context.getUniqueId(),
                 CategoryJson.class

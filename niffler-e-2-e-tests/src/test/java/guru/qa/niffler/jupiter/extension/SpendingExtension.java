@@ -1,6 +1,5 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Date;
+import java.util.List;
 
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver, AfterEachCallback {
 
@@ -70,7 +70,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver,
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType().isAssignableFrom(SpendJson.class);
+        return parameterContext.getParameter().getType().equals(SpendJson.class);
     }
 
     @Override
