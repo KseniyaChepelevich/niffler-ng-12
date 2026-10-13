@@ -1,14 +1,9 @@
 package guru.qa.niffler.jupiter.extension;
 
 
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.*;
 import io.qameta.allure.Allure;
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.lang.annotation.ElementType;
@@ -16,14 +11,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.lang.reflect.Parameter;
 
 
 public class UsersQueueExtension implements
-        BeforeEachCallback,
-        AfterEachCallback,
+        BeforeTestExecutionCallback,
+        AfterTestExecutionCallback,
         ParameterResolver {
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UsersQueueExtension.class);
 
@@ -59,18 +56,12 @@ public class UsersQueueExtension implements
 
     @SuppressWarnings("unchecked")
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        Parameter[] parameters = context.getRequiredTestMethod().getParameters();
+    public void beforeTestExecution(ExtensionContext context) throws Exception {
+           Parameter[] parameters = context.getRequiredTestMethod().getParameters();
 
         Map<Type, List<StaticUser>> resolveMap = context.getStore(NAMESPACE).getOrComputeIfAbsent(
-                context.getUniqueId() + "-resolve",
-                key -> new HashMap<>(),
-                Map.class
-        );
-
-        Map<Type, List<StaticUser>> releaseMap = context.getStore(NAMESPACE).getOrComputeIfAbsent(
-                context.getUniqueId() + "-release",
-                key -> new HashMap<>(),
+                context.getUniqueId() + "-users",
+                key -> new ConcurrentHashMap<>(),
                 Map.class
         );
 
@@ -91,11 +82,10 @@ public class UsersQueueExtension implements
                     }
                 }
                 if (user.isPresent()) {
-                    resolveMap.computeIfAbsent(type, k -> new ArrayList<>()).add(user.get());
-                    releaseMap.computeIfAbsent(type, k -> new ArrayList<>()).add(user.get());
+                    resolveMap.computeIfAbsent(type, k -> new CopyOnWriteArrayList<>()).add(user.get());
                 } else {
-                    rollbackUsers(releaseMap);
-                    releaseMap.clear();
+                    rollbackUsers(resolveMap);
+                    resolveMap.clear();
                     throw new IllegalStateException("Can't find user after 30 sec for parameter: " + p.getName());
                 }
             }
@@ -125,12 +115,14 @@ public class UsersQueueExtension implements
 
     @SuppressWarnings("unchecked")
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        Map<Type, List<StaticUser>> releaseMap = context.getStore(NAMESPACE).remove(context.getUniqueId() + "-release", Map.class);
-        if (releaseMap != null) {
-           rollbackUsers(releaseMap);
+    public void afterTestExecution(ExtensionContext context) {
+        Map<Type, List<StaticUser>> resolveMap = context.getStore(NAMESPACE).get(
+                context.getUniqueId() + "-users",
+                Map.class
+        );
+        if (resolveMap != null) {
+            rollbackUsers(resolveMap);
         }
-        context.getStore(NAMESPACE).remove(context.getUniqueId() + "-resolve", Map.class);
     }
 
     @Override
