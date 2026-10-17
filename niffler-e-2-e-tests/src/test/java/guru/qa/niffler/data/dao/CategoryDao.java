@@ -1,6 +1,6 @@
 package guru.qa.niffler.data.dao;
 
-import guru.qa.niffler.data.entity.CategoryEntity;
+import guru.qa.niffler.data.entity.spend.CategoryEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +16,6 @@ public interface CategoryDao {
     CategoryEntity update(CategoryEntity category);
 
     List<CategoryEntity> findAllByUsername(String username);
+
+    List<CategoryEntity> findAll();
 }
