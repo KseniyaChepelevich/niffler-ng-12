@@ -106,186 +106,214 @@ public class UsersDbClient implements UserClient {
     }
 
     @Override
-    public void createIncomeInvitation(UserJson targetUser, int count) {
+    public List<UserJson> createIncomeInvitation(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryH.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryH.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
-                            userdataUserRepositoryH.addIncomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryH.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
+                    userdataUserRepositoryH.addIncomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
-    public void createIncomeInvitationJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createIncomeInvitationJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
-                            userdataUserRepositoryJdbc.addIncomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
+                    userdataUserRepositoryJdbc.addIncomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
-    public void createIncomeInvitationSpringJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createIncomeInvitationSpringJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositorySpringJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositorySpringJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
-                            userdataUserRepositorySpringJdbc.addIncomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositorySpringJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
+                    userdataUserRepositorySpringJdbc.addIncomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
     @Override
-    public void createOutcomeInvitation(UserJson targetUser, int count) {
+    public List<UserJson> createOutcomeInvitation(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryH.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryH.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
-                            userdataUserRepositoryH.addOutcomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryH.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
+                    userdataUserRepositoryH.addOutcomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
-    public void createOutcomeInvitationJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createOutcomeInvitationJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
-                            userdataUserRepositoryJdbc.addOutcomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
+                    userdataUserRepositoryJdbc.addOutcomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
-    public void createOutcomeInvitationSpringJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createOutcomeInvitationSpringJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositorySpringJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositorySpringJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
-                            userdataUserRepositorySpringJdbc.addOutcomeInvitation(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositorySpringJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
+                    userdataUserRepositorySpringJdbc.addOutcomeInvitation(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
     @Override
-    public void createFriends(UserJson targetUser, int count) {
+    public List<UserJson> createFriends(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryH.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryH.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
-                            userdataUserRepositoryH.addFriend(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryH.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryH.create(userEntity(username));
+                    userdataUserRepositoryH.addFriend(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
-    public void createFriendsJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createFriendsJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositoryJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositoryJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
-                            userdataUserRepositoryJdbc.addFriend(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositoryJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositoryJdbc.create(userEntity(username));
+                    userdataUserRepositoryJdbc.addFriend(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
+
     }
 
-    public void createFriendsSpringJdbc(UserJson targetUser, int count) {
+    public List<UserJson> createFriendsSpringJdbc(UserJson targetUser, int count) {
+        List<UserJson> createdUsers = new ArrayList<>();
+
         if (count > 0) {
             UserEntity targetEntity = userdataUserRepositorySpringJdbc.findById(
                     targetUser.id()
             ).orElseThrow();
 
             for (int i = 0; i < count; i++) {
-                xaTransactionTemplate.execute(() -> {
-                            String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
-                            authUserRepositorySpringJdbc.create(authUser);
-                            UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
-                            userdataUserRepositorySpringJdbc.addFriend(targetEntity, adressee);
-                            return null;
-                        }
-                );
+                UserJson newUser = xaTransactionTemplate.execute(() -> {
+                    String username = randomUsername();
+                    AuthUserEntity authUser = authUserEntity(username, "12345");
+                    authUserRepositorySpringJdbc.create(authUser);
+                    UserEntity adressee = userdataUserRepositorySpringJdbc.create(userEntity(username));
+                    userdataUserRepositorySpringJdbc.addFriend(targetEntity, adressee);
+                    return UserJson.fromEntity(adressee, null);
+                });
+                createdUsers.add(newUser);
             }
         }
+        return createdUsers;
     }
 
     @Override

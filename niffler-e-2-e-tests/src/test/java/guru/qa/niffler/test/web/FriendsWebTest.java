@@ -19,9 +19,8 @@ public class FriendsWebTest {
     void friendShouldBePresentInFriendsTable(@UsersQueueExtension.UserType(UsersQueueExtension.Type.WITH_FRIEND) UsersQueueExtension.StaticUser user) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.password())
-                .openMenu()
-                .openFriendsPage()
-                .checkFriendVisibleInTable(user.friend());
+                .getHeader().toFriendsPage()
+                .checkExistingFriends(user.friend());
     }
 
     @Test
@@ -29,9 +28,8 @@ public class FriendsWebTest {
     void friendsTableShouldBeEmptyForNewUser(@UsersQueueExtension.UserType(UsersQueueExtension.Type.EMPTY) UsersQueueExtension.StaticUser user) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.password())
-                .openMenu()
-                .openFriendsPage()
-                .checkFriendsTableIsEmpty();
+                .getHeader().toFriendsPage()
+                .checkExistingFriendsCount(0);
     }
 
     @Test
@@ -39,9 +37,8 @@ public class FriendsWebTest {
     void incomeInvitationBePresentInFriendsTable(@UsersQueueExtension.UserType(UsersQueueExtension.Type.WITH_INCOME_REQUEST) UsersQueueExtension.StaticUser user) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.password())
-                .openMenu()
-                .openFriendsPage()
-                .checkIncomeRequestBeVisible(user.income());
+                .getHeader().toFriendsPage()
+                .checkExistingInvitations(user.income());
     }
 
     @Test
@@ -49,10 +46,8 @@ public class FriendsWebTest {
     void outcomeInvitationBePresentInAllPeopleTable(@UsersQueueExtension.UserType(UsersQueueExtension.Type.WITH_OUTCOME_REQUEST) UsersQueueExtension.StaticUser user) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.username(), user.password())
-                .openMenu()
-                .openFriendsPage()
-                .openAllPeopleTable()
-                .checkOutcomeRequestBeVisible(user.outcome());
+                .getHeader().toFriendsPage()
+                .checkAllPeopleTable(user.outcome());
     }
 
 

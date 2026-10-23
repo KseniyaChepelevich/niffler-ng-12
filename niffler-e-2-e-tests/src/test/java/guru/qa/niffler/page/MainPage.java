@@ -1,45 +1,51 @@
 package guru.qa.niffler.page;
 
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.StatComponent;
+import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.page.component.SpendingTable;
+import io.qameta.allure.Step;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
-
-public class MainPage {
-    private final SelenideElement spendingTable = $("#spendings");
-
-    private final ElementsCollection tableRows = $("table tbody").$$("tr");
-    private final SelenideElement personIconButton = $("button > div > svg[data-testid='PersonIcon']");
-    private final SelenideElement menu = $("[role='menu']");
-    private final SelenideElement linkFriends = $("[href='/people/friends']");
 
 
+@ParametersAreNonnullByDefault
+public class MainPage extends BasePage<MainPage> {
+
+    public static final String URL = CFG.frontUrl() + "main";
+
+    protected final Header header = new Header();
+    protected final SpendingTable spendingTable = new SpendingTable();
+    protected final StatComponent statComponent = new StatComponent();
+
+    @Nonnull
+    public Header getHeader() {
+        return header;
+    }
+
+    @Nonnull
+    public SpendingTable getSpendingTable() {
+        spendingTable.getSelf().scrollIntoView(true);
+        return spendingTable;
+    }
+
+    @Nonnull
+    public StatComponent getStatComponent() {
+        statComponent.getSelf().scrollIntoView(true);
+        return statComponent;
+    }
+
+    @Step("Check that the page is loaded")
+    @Nonnull
     public MainPage checkThatPageLoaded() {
-        spendingTable.should(visible);
+        header.getSelf().should(visible).shouldHave(text("Niffler"));
+        statComponent.getSelf().should(visible).shouldHave(text("Statistics"));
+        spendingTable.getSelf().should(visible).shouldHave(text("History of Spendings"));
         return this;
-    }
-
-    public EditSpendingPage editSpending(String description) {
-        spendingTable.$$("tbody tr").find(text(description)).$$("td").get(5).click();
-        return new EditSpendingPage();
-    }
-
-    public MainPage checkThatTableContains(String description) {
-        spendingTable.$$("tbody tr").find(text(description)).should(visible);
-        return this;
-    }
-
-    public MainPage openMenu() {
-        personIconButton.click();
-        menu.shouldBe(visible);
-        return new MainPage();
-    }
-
-
-    public FriendsPage openFriendsPage() {
-        linkFriends.click();
-        return new FriendsPage();
     }
 }

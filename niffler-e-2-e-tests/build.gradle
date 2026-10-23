@@ -20,6 +20,7 @@ buildscript {
         ashotVersion = '1.5.4'
         fakerVersion = '1.0.2'
         atomikosVersion = '6.0.0'
+        ashotVersion = '1.5.4'
         userdataWsdlUrl = System.getProperty("test.env") == "docker"
                 ? "http://userdata.niffler.dc:8089/ws/userdata.wsdl"
                 : "http://localhost:8089/ws/userdata.wsdl"
@@ -110,6 +111,7 @@ dependencies {
     testImplementation("com.github.javafaker:javafaker:${fakerVersion}") {
         exclude group: 'org.yaml'
     }
+    testImplementation "ru.yandex.qatools.ashot:ashot:${ashotVersion}"
     testImplementation 'commons-io:commons-io:2.21.0'
     testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'com.github.vertical-blank:sql-formatter:2.0.5'
