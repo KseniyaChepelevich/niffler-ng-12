@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpendDao {
-    SpendEntity create(SpendEntity spend) throws SQLException;
+    SpendEntity create(SpendEntity spend);
 
     void deleteSpend(SpendEntity spend) throws SQLException;
 
-    SpendEntity update(SpendEntity spend) throws SQLException;
+    SpendEntity update(SpendEntity spend);
 
     Optional<SpendEntity> findSpendById(UUID id) throws SQLException;
 

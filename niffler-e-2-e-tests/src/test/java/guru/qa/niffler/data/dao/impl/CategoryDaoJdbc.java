@@ -21,7 +21,7 @@ public class CategoryDaoJdbc implements CategoryDao {
 
 
     @Override
-    public CategoryEntity create(CategoryEntity category) throws SQLException{
+    public CategoryEntity create(CategoryEntity category){
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO category (username, name, archived)" +
@@ -45,11 +45,13 @@ public class CategoryDaoJdbc implements CategoryDao {
                 category.setId(generatedKey);
                 return category;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<CategoryEntity> findCategoryById(UUID id) throws SQLException{
+    public Optional<CategoryEntity> findCategoryById(UUID id){
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM category WHERE id = ?"
@@ -64,6 +66,8 @@ public class CategoryDaoJdbc implements CategoryDao {
                     }
                 }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -83,15 +87,14 @@ public class CategoryDaoJdbc implements CategoryDao {
     public CategoryEntity update(CategoryEntity category) throws SQLException{
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "UPDATE category SET username = ?, name = ?, archived = ?" +
+                    "UPDATE category SET username = ?, name = ?, archived = ? " +
                             "WHERE id = ?",
                     Statement.RETURN_GENERATED_KEYS
             )) {
                 ps.setString(1, category.getUsername());
                 ps.setString(2, category.getName());
                 ps.setBoolean(3, category.isArchived());
-
-                ps.executeUpdate();
+                ps.setObject(4, category.getId());
 
                 int updatedRows = ps.executeUpdate();
                 if (updatedRows == 0) {
@@ -103,7 +106,7 @@ public class CategoryDaoJdbc implements CategoryDao {
     }
 
     @Override
-    public Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username,String categoryName) throws SQLException{
+    public Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username,String categoryName){
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "SELECT * FROM category WHERE username = ? AND name = ?")) {
@@ -119,6 +122,8 @@ public class CategoryDaoJdbc implements CategoryDao {
                     }
                 }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -22,7 +22,7 @@ public class SpendDaoJdbc implements SpendDao {
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public SpendEntity create(SpendEntity spend) throws SQLException{
+    public SpendEntity create(SpendEntity spend) {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO spend (username, spend_date, currency, amount, description, category_id)" +
@@ -49,6 +49,8 @@ public class SpendDaoJdbc implements SpendDao {
                 spend.setId(generatedKey);
                 return spend;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -65,11 +67,11 @@ public class SpendDaoJdbc implements SpendDao {
 
 
     @Override
-    public SpendEntity update(SpendEntity spend) throws SQLException{
+    public SpendEntity update(SpendEntity spend){
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ?, category_id = ?)" +
-                            "WHERE id = ?",
+                    "UPDATE spend SET username = ?, spend_date = ?, currency = ?, amount = ?, description = ?, category_id = ?" +
+                            " WHERE id = ?",
                     Statement.RETURN_GENERATED_KEYS
             )) {
                 ps.setString(1, spend.getUsername());
@@ -78,6 +80,7 @@ public class SpendDaoJdbc implements SpendDao {
                 ps.setDouble(4, spend.getAmount());
                 ps.setString(5, spend.getDescription());
                 ps.setObject(6, spend.getCategory().getId());
+                ps.setObject(7, spend.getId());
 
                 int updatedRows = ps.executeUpdate();
                 if (updatedRows == 0) {
@@ -85,6 +88,8 @@ public class SpendDaoJdbc implements SpendDao {
                 }
                 return spend;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -139,4 +144,6 @@ public class SpendDaoJdbc implements SpendDao {
 
         return spend;
     }
+
+
 }

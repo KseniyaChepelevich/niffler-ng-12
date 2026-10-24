@@ -7,8 +7,8 @@ import guru.qa.niffler.data.entity.UserEntity;
 import guru.qa.niffler.model.CurrencyValues;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,11 +18,11 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public UserEntity createUser(UserEntity user) throws SQLException{
+    public UserEntity createUser(UserEntity user) throws SQLException {
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO \"user\" (currency, firstname, full_name, photo, photo_small, surname, username)" +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            " VALUES (?, ?, ?, ?, ?, ?, ?)",
                     PreparedStatement.RETURN_GENERATED_KEYS
             )) {
                 ps.setObject(1, user.getCurrency().name());
@@ -50,22 +50,22 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public void delete(UUID id) throws SQLException{
+    public void delete(UserEntity user) throws SQLException {
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "DELETE FROM user WHERE id = ?"
+                    "DELETE FROM \"user\" WHERE id = ?"
             )) {
-                ps.setObject(1, id);
+                ps.setObject(1, user.getId());
                 ps.executeUpdate();
             }
         }
     }
 
     @Override
-    public Optional<UserEntity> findById(UUID id) throws SQLException{
+    public Optional<UserEntity> findById(UUID id) throws SQLException {
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE id = ?"
+                    "SELECT * FROM \"user\" WHERE id = ?"
             )) {
                 ps.setObject(1, id);
                 ps.execute();
@@ -81,16 +81,16 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) throws SQLException{
+    public Optional<UserEntity> findByUsername(String username) throws SQLException {
         try (Connection connection = Databases.connection(CFG.userdataJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM user WHERE username = ?"
+                    "SELECT * FROM \"user\" WHERE username = ?"
             )) {
                 ps.setObject(1, username);
                 ps.execute();
                 try (ResultSet rs = ps.getResultSet()) {
                     if (rs.next()) {
-                                                return Optional.of(mapRow(rs));
+                        return Optional.of(mapRow(rs));
                     } else {
                         return Optional.empty();
                     }
@@ -99,14 +99,14 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         }
     }
 
-    private UserEntity mapRow(ResultSet rs) throws SQLException{
+    private UserEntity mapRow(ResultSet rs) throws SQLException {
         UserEntity user = new UserEntity();
         user.setId(rs.getObject("id", UUID.class));
-        user.setCurrency((CurrencyValues) rs.getObject("currency"));
+        user.setCurrency(CurrencyValues.valueOf("currency"));
         user.setFirstname(rs.getString("firstname"));
         user.setFullname(rs.getString("full_name"));
-        user.setPhoto(rs.getString("photo").getBytes());
-        user.setPhotoSmall(rs.getString("photo_small").getBytes());
+        user.setPhoto(rs.getBytes("photo"));
+        user.setPhotoSmall(rs.getBytes("photo_small"));
         user.setSurname(rs.getString("surname"));
         user.setUsername(rs.getString("username"));
 

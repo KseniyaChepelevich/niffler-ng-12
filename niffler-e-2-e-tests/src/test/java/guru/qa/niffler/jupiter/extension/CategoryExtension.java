@@ -1,14 +1,17 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendDbClient;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import java.sql.SQLException;
-
-public class CategoryExtension implements BeforeEachCallback, ParameterResolver {
+public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
 
@@ -19,22 +22,18 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(
                 context.getRequiredTestMethod(),
-                Spending.class
+                Category.class
         ).ifPresent(
                 anno -> {
                     final CategoryJson created;
-                    try {
-                        created = spendClient.createCategory(
-                                new CategoryJson(
-                                        null,
-                                        anno.category(),
-                                        anno.username(),
-                                        false
-                                )
-                        );
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
+                    created = spendClient.createCategory(
+                            new CategoryJson(
+                                    null,
+                                    anno.name(),
+                                    anno.username(),
+                                    false
+                            )
+                    );
                     context.getStore(NAMESPACE).put(
                             context.getUniqueId(),
                             created
@@ -51,5 +50,10 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
     @Override
     public CategoryJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), CategoryJson.class);
+    }
+
+    @Override
+    public void afterTestExecution(ExtensionContext context) throws Exception {
+
     }
 }

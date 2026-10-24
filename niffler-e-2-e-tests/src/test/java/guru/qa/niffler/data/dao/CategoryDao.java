@@ -8,15 +8,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoryDao {
-    CategoryEntity create(CategoryEntity category) throws SQLException;
+    CategoryEntity create(CategoryEntity category);
 
-    Optional<CategoryEntity> findCategoryById(UUID id) throws SQLException;
+    Optional<CategoryEntity> findCategoryById(UUID id);
 
     void deleteCategory(CategoryEntity category) throws SQLException;
 
     CategoryEntity update(CategoryEntity category) throws SQLException;
 
-    Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String categoryName) throws SQLException;
+    Optional<CategoryEntity> findAllByUsernameAndCategoryName(String username, String categoryName);
 
     List<CategoryEntity> findAllByUsername(String username) throws SQLException;
 }
