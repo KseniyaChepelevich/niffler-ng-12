@@ -1,5 +1,6 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.SelenideDriver;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
@@ -15,11 +16,19 @@ public class LoginPage extends BasePage<LoginPage> {
 
     public static final String URL = CFG.authUrl() + "/login";
 
-    private final SelenideElement usernameInput = $("#username");
-    private final SelenideElement passwordInput = $("#password");
-    private final SelenideElement submitBtn = $("#login-button");
-    private final SelenideElement registerButton = $("a[href='/register']");
-    private final SelenideElement errorContainer = $(".form__error");
+    private final SelenideElement usernameInput;
+    private final SelenideElement passwordInput;
+    private final SelenideElement submitBtn;
+    private final SelenideElement registerButton;
+    private final SelenideElement errorContainer;
+
+    public LoginPage(SelenideDriver driver) {
+        this.usernameInput = driver.$("#username");
+        this.passwordInput = driver.$("#password");
+        this.submitBtn = driver.$("#login-button");
+        this.registerButton = driver.$("a[href='/register']");
+        this.errorContainer = driver.$(".form__error");
+    }
 
     public MainPage login(String username, String password) {
         usernameInput.setValue(username);
