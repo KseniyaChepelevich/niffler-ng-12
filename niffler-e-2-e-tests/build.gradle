@@ -106,7 +106,7 @@ dependencies {
         exclude group: 'com.codeborne'
     }
     // WEB
-    testImplementation "com.codeborne:selenide-core:${selenideVersion}"
+    testImplementation "com.codeborne:selenide:${selenideVersion}"
     // Utils
     testImplementation("com.github.javafaker:javafaker:${fakerVersion}") {
         exclude group: 'org.yaml'

@@ -1,9 +1,11 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.SelenideDriver;
 import guru.qa.niffler.page.component.StatComponent;
 import guru.qa.niffler.page.component.Header;
 import guru.qa.niffler.page.component.SpendingTable;
 import io.qameta.allure.Step;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -19,9 +21,26 @@ public class MainPage extends BasePage<MainPage> {
 
     public static final String URL = CFG.frontUrl() + "main";
 
-    protected final Header header = new Header();
-    protected final SpendingTable spendingTable = new SpendingTable();
-    protected final StatComponent statComponent = new StatComponent();
+    protected final Header header;
+    protected final SpendingTable spendingTable;
+    protected final StatComponent statComponent;
+
+    @Autowired
+    private SelenideDriver driver;
+
+    public MainPage(SelenideDriver driver) {
+        super(driver);
+       this.header = new Header();
+        this.spendingTable = new SpendingTable();
+        this.statComponent = new StatComponent();
+    }
+
+    public MainPage() {
+        super();
+        this.header = new Header();
+        this.spendingTable = new SpendingTable();
+        this.statComponent = new StatComponent();
+    }
 
     @Nonnull
     public Header getHeader() {

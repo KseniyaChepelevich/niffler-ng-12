@@ -1,7 +1,6 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideDriver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import guru.qa.niffler.condition.Bubble;
 import guru.qa.niffler.condition.Color;
@@ -22,6 +21,7 @@ import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.component.SpendingTable;
 import guru.qa.niffler.page.component.StatComponent;
 
+import guru.qa.niffler.utils.SelenideUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,14 +43,14 @@ import java.util.Locale;
 public class SpendingTest {
 
 
-    private static final Config CFG = Config.getInstance();
+    private final SelenideDriver driver = new SelenideDriver(SelenideUtils.chromeConfig);
 
-    @BeforeAll
-    static void setupSelenide() {
-        Configuration.browserSize = "1920x1080";
-        Configuration.pageLoadStrategy = "eager";
-        Configuration.timeout = 10000;
-    }
+//    @BeforeAll
+//    static void setupSelenide() {
+//        Configuration.browserSize = "1920x1080";
+//        Configuration.pageLoadStrategy = "eager";
+//        Configuration.timeout = 10000;
+//    }
 
     @User(
             username = "duck",
@@ -64,7 +64,11 @@ public class SpendingTest {
     void spendingDescriptionShouldBeEditedByTableAction(SpendJson spendJson) {
         final String newDescription = "Niffler - 12 поток!!!";
 
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        driver.open
+
+(LoginPage.URL
+
+, LoginPage.class)
                 .login("duck", "12345")
                 .getSpendingTable().editSpending(spendJson.description())
                 .setNewSpendingDescription(newDescription)
@@ -88,7 +92,11 @@ public class SpendingTest {
     void categoryTest(SpendJson spendJson) {
         final String newCategory = "Niffler - 12 поток!!!";
 
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
+        driver.open
+
+(LoginPage.URL
+
+, LoginPage.class)
                 .login("duck", "12345")
                 .getSpendingTable().editSpending(spendJson.description())
                 .setNewSpendingCategory(newCategory)
@@ -118,7 +126,9 @@ public class SpendingTest {
     @ScreenShotTest(value = "img/expected_stat.png")
     void checkStatComponentTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
 
-        StatComponent statComponent = Selenide.open(LoginPage.URL, LoginPage.class)
+        StatComponent statComponent = driver.open
+
+(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getStatComponent();
@@ -154,7 +164,9 @@ public class SpendingTest {
     @ScreenShotTest(value = "img/expected_stat.png")
     void checkStatComponentWithTextTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
 
-        StatComponent statComponent = Selenide.open(LoginPage.URL, LoginPage.class)
+        StatComponent statComponent = driver.open
+
+(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getStatComponent();
@@ -186,7 +198,9 @@ public class SpendingTest {
     @ScreenShotTest(value = "img/expected_stat.png")
     void checkStatComponentBubblesInAnyOrderTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
 
-        StatComponent statComponent = Selenide.open(LoginPage.URL, LoginPage.class)
+        StatComponent statComponent = driver.open
+
+(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getStatComponent();
@@ -223,7 +237,9 @@ public class SpendingTest {
     @ScreenShotTest(value = "img/expected_stat.png")
     void checkStatComponentBubblesContainsTest(UserJson user, BufferedImage expected) throws IOException, InterruptedException {
 
-        StatComponent statComponent = Selenide.open(LoginPage.URL, LoginPage.class)
+        StatComponent statComponent = driver.open
+
+(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.testData().password())
                 .submit(new MainPage())
                 .getStatComponent();
@@ -286,7 +302,9 @@ public class SpendingTest {
                 user.username()
         );
 
-        SpendingTable spendingTable = Selenide.open(LoginPage.URL, LoginPage.class)
+        SpendingTable spendingTable = driver.open
+
+(LoginPage.URL, LoginPage.class)
                 .fillLoginPage(user.username(), user.password())
                 .submit(new MainPage())
                 .getSpendingTable();

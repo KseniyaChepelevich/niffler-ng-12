@@ -1,5 +1,6 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideDriver;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
@@ -9,7 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
+import static java.sql.DriverManager.getDriver;
 
 @ParametersAreNonnullByDefault
 public class LoginPage extends BasePage<LoginPage> {
@@ -23,6 +24,7 @@ public class LoginPage extends BasePage<LoginPage> {
     private final SelenideElement errorContainer;
 
     public LoginPage(SelenideDriver driver) {
+        super(driver);
         this.usernameInput = driver.$("#username");
         this.passwordInput = driver.$("#password");
         this.submitBtn = driver.$("#login-button");
@@ -30,11 +32,19 @@ public class LoginPage extends BasePage<LoginPage> {
         this.errorContainer = driver.$(".form__error");
     }
 
+    public LoginPage(){
+        this.usernameInput = Selenide.$("#username");
+        this.passwordInput = Selenide.$("#password");
+        this.submitBtn = Selenide.$("#login-button");
+        this.registerButton = Selenide.$("a[href='/register']");
+        this.errorContainer = Selenide.$(".form__error");
+    }
+
     public MainPage login(String username, String password) {
         usernameInput.setValue(username);
         passwordInput.setValue(password);
         submitBtn.click();
-        return new MainPage();
+        return new MainPage(driver());
     }
 
     @Nonnull
