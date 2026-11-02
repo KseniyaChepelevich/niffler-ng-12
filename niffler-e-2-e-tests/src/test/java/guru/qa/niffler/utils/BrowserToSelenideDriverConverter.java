@@ -27,9 +27,10 @@ public class BrowserToSelenideDriverConverter implements ArgumentConverter {
                 Thread.currentThread().getName()
         );
 
+        boolean isHeadless = (browser == Browser.FIREFOX);
         SelenideConfig config = new SelenideConfig()
                 .browser(browser.browserName())
-                .headless(false)
+                .headless(isHeadless)
                 .timeout(5000);
 
         return new SelenideDriver(config);
